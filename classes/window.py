@@ -13,7 +13,7 @@ class CLASS:
         
         import numpy as np
         import pandas as pd
-        import linalg
+        from scipy import linalg
         
         self.np = np
         self.pd = pd
@@ -22,19 +22,20 @@ class CLASS:
         self.serie = data
         self.vector = np.asarray(data)
         self.coefs = np.asarray([])
-        self.pred = np.nan
+        self.pred = None
         self.index = list(data.index)
-        self.p = np.nan
-        self.mean = np.nan
-        self.std = np.nan
+        self.p = None
+        self.mean = None
+        self.std = None
         self.norm = False
-        self.ntype = str()
-        self.r_vector = np.nan
-        self.r_vector2 = np.nan
-        self.mean_rs = np.nan
-        self.predicted = np.nan
-        self.dif = np.nan
-
+        self.r_vector = None
+        self.r_vector2 = None
+        self.mean_rs = None
+        self.predicted = None
+        self.menos = None
+        self.dmas = None
+        self.dmen = None
+        
     def normalize(self):
         data = self.vector
         media = self.np.mean(data)
@@ -76,7 +77,12 @@ class CLASS:
         a = self.np.insert(a,0,1)
         
         coef_lpc = a.T
-        self.coefs = coef_lpc
+        coefs = list(coef_lpc)
+        
+        for i in range(len(coefs)-1):
+            coefs[i+1] = coefs[i+1] * -1
+            
+        self.coefs = coefs
         self.p = p
         self.r_vector = r
         self.r_vector2 = r2
@@ -95,15 +101,10 @@ class CLASS:
             
         return pred
 
-        
     def predict(self):
         
         p = self.p
-        coefs = list(self.coefs)
-        
-        # Cambiar de signo los coeficientes LPC
-        for i in range(len(coefs)-1):
-            coefs[i+1] = coefs[i+1] * -1
+        coefs = self.coefs
         
         # Vector de datos
         data = list(self.vector)        
@@ -122,12 +123,17 @@ class CLASS:
         self.predicted = preds
 
         # Prediccion final
-        if (self.norm==True):
+        if self.norm:
             unscaled_pred = last*self.std + self.mean
             self.pred = unscaled_pred
         else:
             self.pred = last
     
-        # para el calculo de la derivada
-        menos = data[l-1] - data[l-2]
-        self.dif = menos
+        # Calculo de la derivada
+        self.menos = data[-1] - data[-2]
+        self.dmas = predicts[-1] - predicts[-2]
+        self.dmen = predicts[-2] - predicts[-3]
+        
+    def clean(self):
+        self.serie = 0
+        self.vector = 0
