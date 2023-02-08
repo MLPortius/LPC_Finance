@@ -24,6 +24,9 @@ class RollingLPC:
         from classes import metrics
         self.metrics = metrics.CLASS
         
+        from classes import derivative
+        self.deriv = derivative.CLASS
+        
         
         # Atributos Inicializacion
         self.signal = data
@@ -57,7 +60,7 @@ class RollingLPC:
         self.dao = None
         
             # Analisis binario
-        self.mse_dir = None
+        self.rmse_dir = None
 
             # Analisis de Estacionaridad Rs y ADF
         # self.std_rs = None
@@ -71,8 +74,8 @@ class RollingLPC:
         self.cross_cor0 = None
         
             # Analisis con Histeresis
-        self.msedh = None
-        self.DAH = None
+        self.rmse_dh = None
+        self.dah = None
         
             # nuevo2
         self.intra_pred_list = []
@@ -134,101 +137,74 @@ class RollingLPC:
         
         pred_ind = list(self.signal.index)[self.wsize:]
         
+        # Listas de Resultados
         pred_list = []
         mean_list = []
         std_list = []
 
-        #mean_rs = [] 
-        intra_p_l = []
-        derivada_pred = []
-        derivada_plus = []
+        #mean_rs = []
+        
+        # Listas de Derivadas
+
+        #intra_p_l = []
+        derivada_men = []
+        derivada_mas = []
         menos = []
 
+
         for ven in self.wlist:
+            
             ven.predict()
+            
+            # EXTRAE PREDICCIONES Y NORMALIZACION
             pred_list.append(ven.pred)
             mean_list.append(ven.mean)
             std_list.append(ven.std)
             
-            # REVISAR QUE ES ESTO -------------------------------------
-            intra_p_l.append(ven.predicted)
-            derivada_pred.append(ven.predicted[-2]-ven.predicted[-3])
-            derivada_plus.append(ven.predicted[-1]-ven.predicted[-2])
+            # EXTRAER DERIVADAS DE VENTANAS
+            
+            derivada_men.append(ven.dmen)
+            derivada_mas.append(ven.dmas)
             menos.append(ven.dif)
+            
+            # APAGADO
+            #intra_p_l.append(ven.predicted)
             #mean_rs.append(ven.mean_rs)
         
-        self.intra_pred_list = intra_p_l
-        
-            # ---------------------------------------------------------
-
+        #self.intra_pred_list = intra_p_l
 
         last = pred_list[-1]
         self.last = last
-
-        pred_vector = self.np.asarray(pred_list[:-1])
-        mean_vector = self.np.asarray(mean_list[:-1])
-        std_vector = self.np.asarray(std_list[:-1])
         
-        # REVISAR QUE ES ESTO -----------------------------------------
-        deriv_vector =  self.np.asarray(derivada_pred[:-1])
-        deriv_plus_vector = self.np.asarray(derivada_plus[:-1])
-        menos_vector =  self.np.asarray(menos[:-1])
-        # -------------------------------------------------------------
-
-
-        real_vector = self.np.asarray(self.signal)
-        error_vector = real_vector[self.wsize:] - pred_vector
+        # RESULTADOS DE PREDICCION
+        real_serie = self.pd.Series(self.signal,index=list(self.signal.index))
+        pred_serie = self.pd.Series(pred_list[:-1], index=pred_ind)
+        mean_serie = self.pd.Series(mean_list[:-1], index=pred_ind)
+        std_serie = self.pd.Series(std_list[:-1], index=pred_ind)
         
-        #nuevo
-        deriv_df = self.pd.DataFrame(deriv_vector)
-        deriv_df.index = pred_ind
-        deriv_df.columns = ['DERIVADA PRED N']
-
-        deriv_plus_df = self.pd.DataFrame(deriv_plus_vector)
-        deriv_plus_df.index = pred_ind
-        deriv_plus_df.columns = ['DERIVADA PRED N+1']
-
-        menos_df = self.pd.DataFrame(menos_vector)
-        menos_df.index = pred_ind
-        menos_df.columns = ['X[n]-X[n-1]']
-
-
-        pred_df = self.pd.DataFrame(pred_vector)
-        pred_df.index = pred_ind
-        pred_df.columns = ['PREDICTION']
+        df1 = self.pd.concat([real_serie,pred_serie,mean_serie,std_serie],axis=1).T
+        df1.columns = ['SIGNAL','PREDICTION','MEANS','STD']
+        df1.dropna(inplace=True)
         
-        mean_df = self.pd.DataFrame(mean_vector)
-        mean_df.index = pred_ind
-        mean_df.columns = ['MEANS']
+        # RESULTADOS DE DERIVADA
+        dmen_serie = self.pd.Series(derivada_men[:-1], index=pred_ind)
+        dmas_serie = self.pd.Series(derivada_mas[:-1], index=pred_ind)
+        menos_serie = self.pd.Series(menos[:-1], index=pred_ind)
         
-        std_df = self.pd.DataFrame(std_vector)
-        std_df.index = pred_ind
-        std_df.columns = ['STD']
+        df2 = self.pd.concat([dmen_serie,dmas_serie,menos_serie],axis=1).T
+        df2.columns = ['DERIVADA N', 'DERIVADA N+1', 'X[n]-X[n-1]']
+        df2.dropna(inplace=True)
 
-
-        
-        error_df = self.pd.DataFrame(error_vector)
-        error_df.index = list(pred_df.index)
-        error_df.columns = ['ERROR']
-
-      
-        real_df = self.pd.DataFrame(self.signal)
-        real_df.columns = ['SIGNAL']
-
-        
-        
-        res = self.pd.concat([real_df,pred_df,error_df,mean_df,std_df, deriv_df, deriv_plus_df, menos_df],axis=1)
-        
-        #print(res['SIGNAL'], res['MEANS'].isna().sum(), res['STD'].isna().sum())
-
+        # CONCATENAR RESULTADOS
+        df = self.pd.concat([df1,df2],axis=1)
 
         if self.normalized:
-
-            res['NORM_SIGNAL'] = (res['SIGNAL']-res['MEANS'])/res['STD']
-            res['NORM_PREDICTION'] = (res['PREDICTION']-res['MEANS'])/res['STD'] 
-            res['NORM_ERROR'] = res['NORM_SIGNAL']-res['NORM_PREDICTION']
+            
+            df['NORM_SIGNAL'] = (df['SIGNAL']-df['MEANS'])/df['STD']
+            df['NORM_PREDICTION'] = (df['PREDICTION']-df['MEANS'])/df['STD'] 
+            df['NORM_ERROR'] = df['NORM_SIGNAL']-df['NORM_PREDICTION']
        
-        self.results = res
+        self.results = df
 
     
     def get_metrics(self):
@@ -242,76 +218,21 @@ class RollingLPC:
         ypred = DF['NORM_PREDICTION']
         # --------------------------------------------------------
         
+          
+        # ANALISIS DE DERIVADAS ----------------------------------
+        deriv = self.deriv(signal=DF['NORM_SIGNAL'], menos=DF['X[n]-X[n-1]'], 
+                           dmas=DF['DERIVADA N+1'] , dmen=DF['DERIVADA N'])
         
+        deriv_res = deriv.get_corrcoefs()
         
-        # REVISAR QUE ES ESTO ------------------------------------
-        #Nuevo n+1
-        res = self.results
-        x_xn_1 = self.np.append([0],self.np.diff(res['NORM_SIGNAL']))
-        xn_1_df = self.pd.DataFrame(x_xn_1)
-        #print(len(xn_1_df))
-        xn_1_df.index = res.index
-        xn_1_df.columns = ['X[n+1]-X[n]']
-        res['X[n+1]-X[n]'] = xn_1_df
-        self.results = res
-        # ---------------------------------------------------------
-
-
-
-        # REVISAR QUE ES ESTO ------------------------------------
-        # Nuevo coef corr
-        res = self.results
-        
-        corr_coef_deriv_menos = self.np.corrcoef(res['DERIVADA PRED N'], res['X[n]-X[n-1]'])[0][1]
-        corr_coef_deriv_mas = self.np.corrcoef(res['DERIVADA PRED N'], res['X[n+1]-X[n]'])[0][1]
-        corr_coef_orig = self.np.corrcoef(res['X[n]-X[n-1]'], res['X[n+1]-X[n]'])[0][1]
-        corr_coef_pred = self.np.corrcoef(res['DERIVADA PRED N+1'], res['DERIVADA PRED N'])[0][1]
-        corr_coef_plus =  self.np.corrcoef(res['DERIVADA PRED N+1'], res['X[n+1]-X[n]'])[0][1]
-
-        self.cc_dme = corr_coef_deriv_menos
-        self.cc_dma =corr_coef_deriv_mas
-        self.cc_o = corr_coef_orig 
-        self.cc_pred = corr_coef_pred
-        self.cc_plus = corr_coef_plus
-        
-        # NUEVO CROSS CORRELATION
+        self.cc_dmen_menos = deriv_res[0]
+        self.cc_dmen_mas = deriv_res[1]
+        self.cc_menos_mas = deriv_res[2]
+        self.cc_dmas_dmen = deriv_res[3]
+        self.cc_dmas_mas  = deriv_res[4]
         # ---------------------------------------------------------
         
-        
-        
-        #NUEVO DH y DAH -------------------------------------------
-        df = self.pd.concat([ytrue,ypred],axis=1)
-        df.columns = ['true','pred']
-        df['r_true'] = df['true'].shift(1)
-        df['r_pred'] = df['pred'].shift(1)
-        df['d_true'] = df['true']-df['r_true']
-        df['d_pred'] = df['pred']-df['r_pred']
-        df=df.reset_index()
-        umbral = 0.2
-        for i in range(1,len(df)):
-            if df['d_true'][i]>umbral:
-                df['d_true'][i] = 1
-            elif df['d_true'][i]<=umbral and df['d_true'][i]>=-umbral:
-                df['d_true'][i] = 0
-            else:
-                df['d_true'][i] = -1
-            if df['d_pred'][i]>=umbral:
-                df['d_pred'][i] = 1
-            elif df['d_pred'][i]<=umbral and df['d_pred'][i]>=-umbral:
-                df['d_pred'][i] = 0
-            else:
-                df['d_pred'][i] = -1
-                  
-        df_mini2 = df[['d_true','d_pred']]
-        df_mini2 = df_mini2.dropna()#resetindex
-
-        mse_dh = sum((df_mini2['d_true']-df_mini2['d_pred'])**2)/len(df_mini2)
-        self.msedh = mse_dh
-
-        dah = sum(df_mini2['d_true'] == df_mini2['d_pred'])/len(df_mini2)
-        self.DAH =dah
-        # ----------------------------------------------------------
-
+        # CROSS CORRELATION
         
         # PREDICTIVE METRICS ---------------------------------------
         met = self.metrics(true=ytrue, pred=ypred)
@@ -330,6 +251,10 @@ class RollingLPC:
         
         # Directional RMSE
         self.rmse_dir = met.get_binary()
+        
+        # Directional RMSE con Histeresis, Directional Accuracy con Histeresis
+        self.rmse_dh, self.dah  = met.get_histeresis()
+        
         # ----------------------------------------------------------
     
     
@@ -355,7 +280,7 @@ class RollingLPC:
         dis = self.dis
         
         # Analisis Binario
-        mse_dir = self.mse_dir
+        rmse_dir = self.rmse_dir
         
         # Analisis de Rs LPC
         # desv_rs = self.nm_std_r
@@ -363,8 +288,8 @@ class RollingLPC:
         # mstd_rn = self.mstd_rs2
 
         # Analisis con Histeresis
-        msedh = self.msedh
-        DAH = self.DAH
+        rmse_dh = self.rmse_dh
+        dah = self.dah
         
         # Analisis Derivadas y Cross Correlation
         #mean_f = self.mean_f
@@ -377,12 +302,12 @@ class RollingLPC:
         
         # Create Rolling Summary
         summ = [n, ws, p, norm, last, mae, da, dao, dis, rmse_dir,
-                msedh, DAH, cc_dme, cc_dma, cc_o, cc_pred, cc_plus]
+                rmse_dh, dah, cc_dme, cc_dma, cc_o, cc_pred, cc_plus]
 
         df = self.pd.DataFrame(summ)
         df = df.transpose()
         df.columns = ['n_data','w_size','p_lags','normalized','last_pred',
-                      'MAE','DA','DA_Oracle','DIS','RMSE_dir','MSE_DH','DAH',
+                      'MAE','DA','DA_Oracle','DIS','RMSE_dir','RMSE_DH','DAH',
                       'CorrCoef_d_minus','CorrCoef_d_plus','CorrCoef_original_plus_m',
                       'CorrCoef_pred(n,n+1)','CorrCoef_deriv_orig(n+1)']
         df.index = [label]
