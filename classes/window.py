@@ -13,7 +13,7 @@ class CLASS:
         
         import numpy as np
         import pandas as pd
-        import linalg
+        from scipy import linalg
         
         self.np = np
         self.pd = pd
@@ -75,7 +75,12 @@ class CLASS:
         a = self.np.insert(a,0,1)
         
         coef_lpc = a.T
-        self.coefs = coef_lpc
+        coefs = list(coef_lpc)
+        
+        for i in range(len(coefs)-1):
+            coefs[i+1] = coefs[i+1] * -1
+            
+        self.coefs = coefs
         self.p = p
         self.r_vector = r
         self.r_vector2 = r2
@@ -97,11 +102,7 @@ class CLASS:
     def predict(self):
         
         p = self.p
-        coefs = list(self.coefs)
-        
-        # Cambiar de signo los coeficientes LPC
-        for i in range(len(coefs)-1):
-            coefs[i+1] = coefs[i+1] * -1
+        coefs = self.coefs
         
         # Vector de datos
         data = list(self.vector)        

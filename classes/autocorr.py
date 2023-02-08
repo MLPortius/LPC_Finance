@@ -5,8 +5,7 @@ Created on Tue Feb  7 20:47:11 2023
 @author: Andriu
 """
 
-
-class AutoCorr:
+class CLASS:
     
     def __init__(self, data, max_tau):
         
@@ -23,7 +22,7 @@ class AutoCorr:
         self.autocorres = pd.DataFrame()
         self.discrim = ()
     
-    def auto_corre_serie(self, serie, max_tau):
+    def get_ac(self, serie, max_tau):
         
         autocorres = []
         
@@ -49,9 +48,9 @@ class AutoCorr:
         max_t = self.max_tau
         results = self.data
         
-        autocorres = self.pd.concat([self.auto_corre_serie(results['NORM_SIGNAL'],max_t),
-                                     self.auto_corre_serie(results['NORM_PREDICTION'],max_t),
-                                     self.auto_corre_serie(results['NORM_ERROR'],max_t)],
+        autocorres = self.pd.concat([self.get_ac(results['NORM_SIGNAL'],max_t),
+                                     self.get_ac(results['NORM_PREDICTION'],max_t),
+                                     self.get_ac(results['NORM_ERROR'],max_t)],
                                     axis=1)
         
         autocorres.columns = ['original','predicted','error']

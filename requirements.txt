@@ -1,5 +1,5 @@
 numpy
 pandas
-linalg
+scipy
 pickle5
 openpyxl
