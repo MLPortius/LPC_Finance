@@ -2,3 +2,4 @@ numpy
 pandas
 linalg
 pickle5
+openpyxl

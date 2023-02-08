@@ -28,7 +28,6 @@ class CLASS:
         self.mean = np.nan
         self.std = np.nan
         self.norm = False
-        self.ntype = str()
         self.r_vector = np.nan
         self.r_vector2 = np.nan
         self.mean_rs = np.nan
@@ -95,7 +94,6 @@ class CLASS:
             
         return pred
 
-        
     def predict(self):
         
         p = self.p
@@ -131,3 +129,7 @@ class CLASS:
         # para el calculo de la derivada
         menos = data[l-1] - data[l-2]
         self.dif = menos
+
+    def clean(self):
+        self.serie = 0
+        self.vector = 0
