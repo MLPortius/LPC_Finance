@@ -1,5 +1,7 @@
 numpy
 pandas
+pyzmq==24
 scipy
 pickle5
 openpyxl
+plotly
