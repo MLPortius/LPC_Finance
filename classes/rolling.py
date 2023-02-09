@@ -5,7 +5,7 @@ Created on Tue Feb  7 20:47:28 2023
 @author: Andriu
 """
 
-class RollingLPC:
+class CLASS:
     
     def __init__(self, data, label='Model'):
         
@@ -253,7 +253,7 @@ class RollingLPC:
         self.rmse_dir = met.get_binary()
         
         # Directional RMSE con Histeresis, Directional Accuracy con Histeresis
-        self.rmse_dh, self.dah  = met.get_histeresis()
+        self.rmse_dh, self.dah  = met.get_histeresis(0.2)
         
         # ----------------------------------------------------------
     
@@ -293,23 +293,24 @@ class RollingLPC:
         
         # Analisis Derivadas y Cross Correlation
         #mean_f = self.mean_f
-        cc_dme = self.cc_dme
-        cc_dma = self.cc_dma 
-        cc_o = self.cc_o 
-        cc_pred = self.cc_pred 
-        cc_plus = self.cc_plus
-        
+        cc_1 = self.cc_dmen_menos
+        cc_2 = self.cc_dmen_mas
+        cc_3 = self.cc_menos_mas 
+        cc_4 = self.cc_dmas_dmen
+        cc_5 = self.cc_dmas_mas
         
         # Create Rolling Summary
         summ = [n, ws, p, norm, last, mae, da, dao, dis, rmse_dir,
-                rmse_dh, dah, cc_dme, cc_dma, cc_o, cc_pred, cc_plus]
+                rmse_dh, dah, cc_1, cc_2, cc_3, cc_4, cc_5]
 
         df = self.pd.DataFrame(summ)
         df = df.transpose()
+        
         df.columns = ['n_data','w_size','p_lags','normalized','last_pred',
                       'MAE','DA','DA_Oracle','DIS','RMSE_dir','RMSE_DH','DAH',
-                      'CorrCoef_d_minus','CorrCoef_d_plus','CorrCoef_original_plus_m',
-                      'CorrCoef_pred(n,n+1)','CorrCoef_deriv_orig(n+1)']
+                      'CC_Dmenos_Xmenos','CC_Dmenos_Xmas','CC_Xmenos_Xmas',
+                      'CC_Dmas_Dmenos','CC_Dmas_Xmas']
+        
         df.index = [label]
 
         return df
