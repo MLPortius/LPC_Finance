@@ -312,6 +312,7 @@ class CLASS:
                       'CC_Dmas_Dmenos','CC_Dmas_Xmas']
         
         df.index = [label]
+        df._set_axis_name('stock',inplace=True)
 
         return df
 
