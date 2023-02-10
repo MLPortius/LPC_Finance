@@ -5,10 +5,9 @@ Created on Tue Feb  7 20:47:20 2023
 @author: Andriu
 """
 
-class LPCgrid:
+class CLASS:
     
-    def __init__(self, data, vols, label, ws_list, p_list, norm=True):
-        
+    def __init__(self, dataset, label, ws_list, p_list, norm=True):
         
         # LIBRERIAS
         import numpy as np
@@ -22,13 +21,19 @@ class LPCgrid:
         from classes import rolling
         self.rolling = rolling.CLASS
         
+        from classes import volumes
+        self.volumes = volumes.CLASS
+        
         # INICIALIZACION
         self.label = label
-        self.serie = data.dropna(axis=0)
+        self.serie = dataset['close'].loc[:,label]
+        self.vols = dataset['vols'].loc[:,label]
+        
         self.lenght = len(self.serie)
         self.norm = norm
         
-        self.vols = vols.dropna(axis=0)
+        self.serie.dropna(axis=0, inplace=True)
+        self.vols.dropna(axis=0, inplace=True)
 
         # AJUSTE DE GRILLA        
         grid = []
@@ -44,7 +49,7 @@ class LPCgrid:
         # CONTROL
         self.best = None
         self.roll_list = []
-        self.run_time = np.nan
+        self.gsum = None
         
     def grid_search(self,ntype):
         
@@ -81,9 +86,32 @@ class LPCgrid:
     def global_summary(self):        
         gsum = self.roll_list[0].summary()
         for m in self.roll_list[1:]:
-            gsum = pd.concat([gsum,m.summary()],axis=0)
-        return gsum
+            gsum = self.pd.concat([gsum,m.summary()],axis=0)
+        self.gsum = gsum
 
     def add_volumes(self):
         
+        gsum = self.gsum.copy()
+        N = len(gsum.index)
         
+        v = self.volumes(self.vols)
+        vmetrics = v.get_metrics()
+        
+        vsum = self.pd.Series([vmetrics[0]] * N)
+        vstd = self.pd.Series([vmetrics[1]] * N)
+        vmean = self.pd.Series([vmetrics[2]] * N)
+        vcv = self.pd.Series([vmetrics[3]] * N)
+        
+        vdf = self.pd.concat([vsum,vstd,vmean,vcv],axis=1)
+        vdf.columns = ['vsum','vstd','vmean','vcv']
+        vdf.index = gsum.index
+        
+        gsum = self.pd.concat([gsum,vdf],axis=1)
+        
+        self.gsum = gsum
+        
+        return gsum
+    
+    def add_histograms(self):
+        
+        print('xd...')

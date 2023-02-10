@@ -5,14 +5,32 @@ Created on Tue Feb  7 20:50:24 2023
 @author: Andriu
 """
 
-vols = pd.read_excel(data_folder+'SP500_VOLS_FILTERED.xlsx')
-vols.set_index('Date',inplace=True,drop=True)
-vols = vols/1000000
+class CLASS:
+    
+    def __init__(self, serie):
+        
+        # LIBRERIAS
+        import pandas as pd
+        import numpy as np
+        self.pd = pd
+        self.np = np
+        
+        # INICIALIZACION
+        self.serie = serie/1000000
 
-vsum = vols.sum(axis=0)
-vstd = vols.std(axis=0)
-vmean = vols.mean(axis=0)
-vcv = vstd/vmean
+        # RESULTADOS
+        self.vsum = None
+        self.vstd = None
+        self.vmean = None
+        self.vcv = None
+        
+    def get_metrics(self):
+        
+        self.vsum = self.np.sum(self.serie)
+        self.vstd = self.np.std(self.serie)
+        self.vmean = self.np.mean(self.serie)
+        self.vcv = self.vstd/self.mean
 
-vdf = pd.concat([vsum,vmean,vstd,vcv],axis=1)
-vdf.columns = ['VOL_SUM','VOL_MEAN','VOL_STD','VOL_CV']
+        vmetrics = [self.vsum, self.vstd, self.mean, self.vcv]
+        
+        return vmetrics
