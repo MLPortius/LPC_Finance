@@ -120,7 +120,7 @@ for t in tickers:
             
             os.system('git add .')
             os.system('git commit -m'+' '+'"grid result - '+dset+' - '+slce+' - '+t+'"')
-            os.system("git"+" "+"-u push lpc"+" "+git_branch)
+            os.system("git"+" "+"push -u lpc"+" "+git_branch)
             
         end = time.time()
         elapsed = np.round((end-start)/3600,2)
