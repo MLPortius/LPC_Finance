@@ -24,6 +24,9 @@ class CLASS:
         from classes import volumes
         self.volumes = volumes.CLASS
         
+        from classes import histograms
+        self.histograms = histograms.CLASS
+        
         # INICIALIZACION
         self.label = label
         self.serie = dataset['close'].loc[:,label]
@@ -50,8 +53,11 @@ class CLASS:
         self.best = None
         self.roll_list = []
         self.gsum = None
+        self.vdf = None
+        self.hdf = None
+        self.hs = None
         
-    def grid_search(self,ntype):
+    def grid_search(self):
         
         models = []
         
@@ -60,7 +66,7 @@ class CLASS:
             print("Stage: "+self.label+" "+str(tupla[0])+" "+str(tupla[1]))
             
             start = self.time.time()
-            LPC = self.rolling(self.serie,label=self.label+"_"+str(tupla[0])+"_"+str(tupla[1]))
+            LPC = self.rolling(self.serie,label=self.label)
             LPC.create(tupla[0])
             
             if self.norm:
@@ -75,7 +81,7 @@ class CLASS:
             end = self.time.time()
             elapsed = self.np.round(end-start,2)
             
-            print("Time elapsed: ",elapsed)    
+            print("Time elapsed: ",elapsed)
 
             LPC.clean()
             
@@ -83,35 +89,37 @@ class CLASS:
         
         self.roll_list = models
     
-    def global_summary(self):        
+    def global_summary(self):   
+        
         gsum = self.roll_list[0].summary()
+        
         for m in self.roll_list[1:]:
             gsum = self.pd.concat([gsum,m.summary()],axis=0)
+            
+        gsum._set_axis_name('stock')
+        
         self.gsum = gsum
 
     def add_volumes(self):
         
-        gsum = self.gsum.copy()
-        N = len(gsum.index)
-        
         v = self.volumes(self.vols)
         vmetrics = v.get_metrics()
         
-        vsum = self.pd.Series([vmetrics[0]] * N)
-        vstd = self.pd.Series([vmetrics[1]] * N)
-        vmean = self.pd.Series([vmetrics[2]] * N)
-        vcv = self.pd.Series([vmetrics[3]] * N)
-        
-        vdf = self.pd.concat([vsum,vstd,vmean,vcv],axis=1)
+        vdf = self.pd.DataFrame(vmetrics).T
         vdf.columns = ['vsum','vstd','vmean','vcv']
-        vdf.index = gsum.index
+        vdf.index = [self.label]
+        vdf._set_axis_name('stock',inplace=True)
         
-        gsum = self.pd.concat([gsum,vdf],axis=1)
+        self.vdf = vdf
         
-        self.gsum = gsum
-        
-        return gsum
-    
     def add_histograms(self):
         
-        print('xd...')
+        h = self.histograms(self.serie)
+        h.get_values()
+        h.get_histograms()
+        
+        self.hdf = h.hmetrics
+        self.hdf.index = [self.label]
+        self.hdf._set_axis_name('stock',inplace=True)
+        
+        self.hs = h.histograms
