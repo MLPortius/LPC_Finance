@@ -165,7 +165,7 @@ class CLASS:
             
             derivada_men.append(ven.dmen)
             derivada_mas.append(ven.dmas)
-            menos.append(ven.dif)
+            menos.append(ven.menos)
             
             # APAGADO
             #intra_p_l.append(ven.predicted)
@@ -182,7 +182,7 @@ class CLASS:
         mean_serie = self.pd.Series(mean_list[:-1], index=pred_ind)
         std_serie = self.pd.Series(std_list[:-1], index=pred_ind)
         
-        df1 = self.pd.concat([real_serie,pred_serie,mean_serie,std_serie],axis=1).T
+        df1 = self.pd.concat([real_serie,pred_serie,mean_serie,std_serie],axis=1)
         df1.columns = ['SIGNAL','PREDICTION','MEANS','STD']
         df1.dropna(inplace=True)
         
@@ -191,7 +191,7 @@ class CLASS:
         dmas_serie = self.pd.Series(derivada_mas[:-1], index=pred_ind)
         menos_serie = self.pd.Series(menos[:-1], index=pred_ind)
         
-        df2 = self.pd.concat([dmen_serie,dmas_serie,menos_serie],axis=1).T
+        df2 = self.pd.concat([dmen_serie,dmas_serie,menos_serie],axis=1)
         df2.columns = ['DERIVADA N', 'DERIVADA N+1', 'X[n]-X[n-1]']
         df2.dropna(inplace=True)
 

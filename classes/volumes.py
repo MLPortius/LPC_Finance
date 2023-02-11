@@ -29,8 +29,8 @@ class CLASS:
         self.vsum = self.np.sum(self.serie)
         self.vstd = self.np.std(self.serie)
         self.vmean = self.np.mean(self.serie)
-        self.vcv = self.vstd/self.mean
+        self.vcv = self.vstd/self.vmean
 
-        vmetrics = [self.vsum, self.vstd, self.mean, self.vcv]
+        vmetrics = [self.vsum, self.vstd, self.vmean, self.vcv]
         
         return vmetrics

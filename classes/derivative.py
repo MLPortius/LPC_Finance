@@ -27,7 +27,7 @@ class CLASS:
         # Calculo X[n+1] - X[n]
         mas = self.np.append([0],self.np.diff(self.signal))
         mas_serie = self.pd.Series(mas)
-        mas_serie.index = self.signal.inedx
+        mas_serie.index = self.signal.index
         self.mas = mas_serie
         
         # Correlacion entre Derivada en N y Diferencia X[n] - X[n-1]

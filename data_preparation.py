@@ -13,7 +13,7 @@ outfolder = 'output/'
 plots = outfolder+'plots/'
 
 #%% INITIAL DATA
-data = pd.read_excel(infolder+'excel/'+'sp500_market_data.xlsx')
+data = pd.read_excel(infolder+'sp500_market_data.xlsx')
 slices_ind = list(data.columns)
 
 #%% TICKERS
@@ -253,4 +253,4 @@ with open(infolder+'lpc_datasets'+'.lzma','wb') as file:
     cpickle.dump(data,file,compression='lzma')
     
 with open(infolder+'slice_tickers'+'.lzma','wb') as file:
-    cpickle.dump(data,file,compression='lzma')
+    cpickle.dump(stickers,file,compression='lzma')

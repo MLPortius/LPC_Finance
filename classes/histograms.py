@@ -27,7 +27,7 @@ class CLASS:
         # Esta funcion cuenta las rachas, y las guarda según sean positivos o negativos
         
         dif = self.serie - self.serie.shift(1)
-        dif.dropna(inplace=True, inplace=True)
+        dif.dropna(axis=0, inplace=True)
         
         deltas = list(dif)      # Los guarda en formato lista
         
@@ -37,7 +37,7 @@ class CLASS:
         
         cs = 1 # Se comienza con el minimo (1 periodo de duracion)
         
-        for i in range(len(deltas-1)):
+        for i in range(len(deltas)-1):
             
             d0 = deltas[i]      # Este cambio
             d1 = deltas[i+1]    # El cambio siguiente
@@ -105,6 +105,7 @@ class CLASS:
         
         # Doy formato al histograma
         hist.columns = ['magnitud','veces','proba']
+        hist.sort_index(inplace=True)
         
         # Guardo en un diccionario el histograma y las metricas calculadas
         dicto = {'h':hist,'m':MEAN,'s':STD,'cv':CV,'n':N}

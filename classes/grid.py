@@ -57,7 +57,7 @@ class CLASS:
         self.hdf = None
         self.hs = None
         
-    def grid_search(self,ntype):
+    def grid_search(self):
         
         models = []
         
@@ -66,7 +66,7 @@ class CLASS:
             print("Stage: "+self.label+" "+str(tupla[0])+" "+str(tupla[1]))
             
             start = self.time.time()
-            LPC = self.rolling(self.serie,label=self.label+"_"+str(tupla[0])+"_"+str(tupla[1]))
+            LPC = self.rolling(self.serie,label=self.label)
             LPC.create(tupla[0])
             
             if self.norm:
@@ -81,7 +81,7 @@ class CLASS:
             end = self.time.time()
             elapsed = self.np.round(end-start,2)
             
-            print("Time elapsed: ",elapsed)    
+            print("Time elapsed: ",elapsed)
 
             LPC.clean()
             
@@ -123,5 +123,3 @@ class CLASS:
         self.hdf._set_axis_name('stock',inplace=True)
         
         self.hs = h.histograms
-    
-    
