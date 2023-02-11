@@ -14,7 +14,7 @@ import numpy as np
 import compress_pickle as cpickle
 
 from classes import grid
-LPCgrid = grid
+LPCgrid = grid.CLASS
 
 #%% SCRIPT SETUP
 
