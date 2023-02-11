@@ -72,7 +72,7 @@ branches = branches.decode().split('\n')[:-1]
 
 branch = False
 for b in branches: 
-    if 'bot' in b:
+    if git_branch in b:
         branch = True
 
 if not branch:
