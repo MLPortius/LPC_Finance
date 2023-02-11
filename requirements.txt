@@ -4,3 +4,4 @@ pyzmq==24 --upgrade
 scipy
 openpyxl
 plotly
+compress_pickle
