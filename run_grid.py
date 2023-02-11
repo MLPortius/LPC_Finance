@@ -20,6 +20,7 @@ parser = argparse.ArgumentParser(prog= 'LPC_grid_search',
 parser.add_argument('-ut', '--token', required=True, type=str)
 parser.add_argument('-un', '--user', required=True, type=str)
 parser.add_argument('-ue', '--email', required=True, type=str)
+parser.add_argument('-r', '--repo', required=True, type=str)
 
 parser.add_argument('-d','--dset', required=True, type=int, choices=[1,2,3])
 parser.add_argument('-s','--slice', required=True, type=int, choices=[1,2,3,4,5,6,7,8,9,10])
@@ -42,7 +43,7 @@ git_branch = dset_str+'/'+slice_str
 
 print('\nGithub setup ...')
 
-git_url = 'https://github.com/MLPortius/LPC_Finance.git'
+git_url = args.repo
 
 # REPO AND USER
 git_user = args.user
