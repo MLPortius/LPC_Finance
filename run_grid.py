@@ -27,6 +27,8 @@ parser.add_argument('-s','--slice', required=True, type=int, choices=[1,2,3,4,5,
 parser.add_argument('-g','--grid', required=True, type=str, choices=['short','full'])
 parser.add_argument('--git', required=True, type=int, choices=[0,1])
 
+parser.add_argument('-p','--platform',required=True, type=str, chices=['colab','spyder'])
+
 args = parser.parse_args()
 
 # ARGUMENTS
@@ -34,6 +36,7 @@ ds = args.dset
 sl = args.slice
 g = args.grid
 git = args.git
+pf = args.platform
 
 slice_str = "slice"+str(sl)
 dset_str = "set"+str(ds)
@@ -46,12 +49,14 @@ print('\nGithub setup ...')
 git_url = args.repo
 
 # REPO AND USER
+
 git_user = args.user
 git_email = args.email
 git_token = args.token
 
-# USER ACCESS
 
+# USER ACCESS
+        
 print('     ...accesing to repo',git_url)
 
 os.system("git"+" "+"config user.name"+" "+git_user)
@@ -59,35 +64,48 @@ os.system("git"+" "+"config user.email"+" "+git_email)
 os.system("git"+" "+"config user.password"+" "+git_token)
 
 # REPO SETUP
+if pf == 'spyder':
+    remotes = subprocess.check_output("git remote")
+    remotes = remotes.decode().split('\n')[:-1]
 
-remotes = subprocess.check_output("git remote")
-remotes = remotes.decode().split('\n')[:-1]
+    if not "lpc" in remotes:
+        print('     ...adding lpc remote to repo')
+        os.system("git"+" "+"remote add lpc"+" "+git_url)
+        os.system("git"+" "+"pull"+" "+"lpc"+" "+"master")
+        
+        branches = subprocess.check_output("git branch")
+        branches = branches.decode().split('\n')[:-1]
+        
+        branch = False
+        for b in branches: 
+            if git_branch in b:
+                branch = True
 
-if not "lpc" in remotes:
+        if not branch:
+            print('     ...adding the new branch to repo')
+            os.system("git"+" "+"branch"+" "+git_branch)
+
+        os.system("git"+" "+"checkout"+" "+git_branch)
+    
+        print('DONE!')
+        
+elif pf == 'colab':
+    
     print('     ...adding lpc remote to repo')
     os.system("git"+" "+"remote add lpc"+" "+git_url)
-
-os.system("git"+" "+"pull"+" "+"lpc"+" "+"master")
-
-branches = subprocess.check_output("git branch")
-branches = branches.decode().split('\n')[:-1]
-
-branch = False
-for b in branches: 
-    if git_branch in b:
-        branch = True
-
-if not branch:
+    
     print('     ...adding the new branch to repo')
     os.system("git"+" "+"branch"+" "+git_branch)
+    
+    print('     ...selecting new branch')
+    os.system("git"+" "+"checkout"+" "+git_branch)
+    
+    print('DONE!')
 
-os.system("git"+" "+"checkout"+" "+git_branch)
-
-print('DONE!')
-
-#%% RUN GRID
+#%% 
 
 print('\n')
 cmd = 'python'+' '+'grid_search.py'+' '+'-s'+' '+str(sl)+' '+'-d'+' '+str(ds)+' '+'-g'+' '+str(g)+' '+'--git'+' '+str(git)
 os.system(cmd)
+
 
