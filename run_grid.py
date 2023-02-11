@@ -86,6 +86,6 @@ print('DONE!')
 #%% RUN GRID
 
 print('\n')
-cmd = 'python'+' '+'-s'+' '+str(sl)+' '+'-d'+' '+str(ds)+' '+'-g'+' '+str(g)+' '+'--git'+' '+str(git)
+cmd = 'python'+' '+'grid_search.py'+' '+'-s'+' '+str(sl)+' '+'-d'+' '+str(ds)+' '+'-g'+' '+str(g)+' '+'--git'+' '+str(git)
 os.system(cmd)
 
