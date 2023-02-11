@@ -54,14 +54,19 @@ git_user = args.user
 git_email = args.email
 git_token = args.token
 
+git_host = 'MLPortius'
+project = git_url.split(git_host+'/')[1]
+
+git_remote = 'https://'+git_token+'@github.com/'+git_host+'/'+project
+
 
 # USER ACCESS
         
 print('     ...accesing to repo',git_url)
 
-os.system("git"+" "+"config user.name"+" "+git_user)
-os.system("git"+" "+"config user.email"+" "+git_email)
-os.system("git"+" "+"config user.password"+" "+git_token)
+os.system("git"+" "+"config --global user.name"+" "+git_user)
+os.system("git"+" "+"config --global user.email"+" "+git_email)
+os.system("git"+" "+"config --global user.password"+" "+git_token)
 
 # REPO SETUP
 if pf == 'spyder':
@@ -70,7 +75,7 @@ if pf == 'spyder':
 
     if not "lpc" in remotes:
         print('     ...adding lpc remote to repo')
-        os.system("git"+" "+"remote add lpc"+" "+git_url)
+        os.system("git"+" "+"remote add lpc"+" "+git_remote)
         os.system("git"+" "+"pull"+" "+"lpc"+" "+"master")
         
         branches = subprocess.check_output("git branch")
@@ -92,7 +97,7 @@ if pf == 'spyder':
 elif pf == 'colab':
     
     print('     ...adding lpc remote to repo')
-    os.system("git"+" "+"remote add lpc"+" "+git_url)
+    os.system("git"+" "+"remote add lpc"+" "+git_remote)
     
     print('     ...adding the new branch to repo')
     os.system("git"+" "+"branch"+" "+git_branch)
