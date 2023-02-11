@@ -5,8 +5,6 @@ Created on Tue Feb  7 20:37:56 2023
 @author: Andriu
 """
 
-
-
 #%% IMPORTAR LIBRERIAS
 
 import os
@@ -15,7 +13,8 @@ import pandas as pd
 import numpy as np
 import compress_pickle as cpickle
 
-from classes.grid import CLASS as LPCgrid
+from classes import grid
+LPCgrid = grid
 
 #%% SCRIPT SETUP
 
@@ -28,6 +27,7 @@ parser = argparse.ArgumentParser(prog= 'LPC_grid_search',
 parser.add_argument('-s','--slice', required=True, type=int, choices=[1,2,3,4,5,6,7,8,9,10])
 parser.add_argument('-d','--dset', required=True, type=int, choices=[1,2,3])
 parser.add_argument('-g','--grid', required=True, type=str, choices=['short','full'])
+parser.add_argument('--git', required=True, type=int, choices=[0,1])
 
 args = parser.parse_args()
 
@@ -35,7 +35,7 @@ args = parser.parse_args()
 ds = args.dset
 sl = args.slice
 g = args.grid
-
+git = args.git
 
 #%% CONFIGURAR ENTORNO
 
@@ -43,6 +43,8 @@ infolder = 'input/cpickle/'
 outfolder = 'output/results/'
 
 dset = 'set'+str(ds)
+slce = 'slice'+str(sl)
+
 slice_path = 'slice'+str(sl)+'/'
 dset_path = dset+'/'
 
@@ -111,6 +113,14 @@ for t in tickers:
             ht.to_excel(writer, sheet_name='TOTAL_HS')
             hp.to_excel(writer, sheet_name='POSITIVE_HS')
             hn.to_excel(writer, sheet_name='NEGATIVE_HS')
+        
+        if git == 1:
+            
+            git_branch = dset+'/'+slce
+            
+            os.system('git add .')
+            os.system('git commit -m'+' '+'"grid result - '+dset+' - '+slce+' - '+t+'"')
+            os.system("git"+" "+"-u push lpc"+" "+git_branch)
             
         end = time.time()
         elapsed = np.round((end-start)/3600,2)
@@ -118,6 +128,7 @@ for t in tickers:
         print('\nGRID TIME: ',elapsed,'HRS')
         print('     ...DONE!')
     
+        
     else:
         print('\n')
         print(t, 'Already Done...')
