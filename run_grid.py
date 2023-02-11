@@ -66,6 +66,7 @@ if not "lpc" in remotes:
     print('     ...adding lpc remote to repo')
     os.system("git"+" "+"remote add lpc"+" "+git_url)
 
+os.system("git"+" "+"pull"+" "+"lpc"+" "+"master")
 
 branches = subprocess.check_output("git branch")
 branches = branches.decode().split('\n')[:-1]
