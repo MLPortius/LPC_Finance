@@ -35,7 +35,7 @@ g = args.grid
 git = args.git
 
 slice_str = "slice"+str(sl)
-dset_str = "dset"+str(ds)
+dset_str = "set"+str(ds)
 git_branch = dset_str+'/'+slice_str
 
 #%% GITHUB SETUP
