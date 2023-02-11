@@ -27,7 +27,7 @@ parser.add_argument('-s','--slice', required=True, type=int, choices=[1,2,3,4,5,
 parser.add_argument('-g','--grid', required=True, type=str, choices=['short','full'])
 parser.add_argument('--git', required=True, type=int, choices=[0,1])
 
-parser.add_argument('-p','--platform',required=True, type=str, chices=['colab','spyder'])
+parser.add_argument('-p','--platform',required=True, type=str, choices=['colab','spyder'])
 
 args = parser.parse_args()
 
