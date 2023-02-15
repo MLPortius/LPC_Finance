@@ -11,7 +11,7 @@ import pandas as pd
 import compress_pickle as cpickle
 import argparse
 
-#%% SCRIPT SETUP
+#%% SCRIPT ARGUMENTS
 
 parser = argparse.ArgumentParser(prog= 'LPC_Results_Analysis',
                                  description = 'Join results and optimize metrics',
@@ -23,6 +23,8 @@ args = parser.parse_args()
 # ARGUMENTS
 ds = args.dset
 
+
+#%% SCRIPT SETUP
 
 infolder = 'output/results/'
 afolder = 'output/analysis/'

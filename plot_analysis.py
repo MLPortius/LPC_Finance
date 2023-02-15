@@ -28,6 +28,7 @@ args = parser.parse_args()
 ds = args.dset
 
 #%% SCRIPT SETUP
+
 afolder = 'output/analysis/'
 pfolder = 'output/plots/'
 

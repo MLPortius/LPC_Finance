@@ -1,6 +1,0 @@
-derivada_pred?
-derivada_plus?
-corr_coef?
-cross_corr?
-menos?
-intra pred list?
