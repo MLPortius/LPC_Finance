@@ -76,11 +76,11 @@ for i in range(len(dsets)):
     dfcv = dfstd/dfmean
     
     dfc = pd.concat([dfmax, dfmin, dfmean, dfcv],axis=1)
-    dfc.columns = ['MIN','MAX','MEAN','CV'] 
+    dfc.columns = ['MAX','MIN','MEAN','CV'] 
     
     dfm = pd.DataFrame([['dset'+str(i+1),np.nan,np.nan,np.nan],[dates[i]['s'],np.nan,np.nan,np.nan], [dates[i]['e'],np.nan,np.nan,np.nan]])
     dfm.index = ['dataset','start','end']
-    dfm.columns = ['MIN','MAX','MEAN','CV'] 
+    dfm.columns = ['MAX','MIN','MEAN','CV'] 
     
     dfr = pd.concat([dfm, dfc],axis=0)
     
@@ -102,11 +102,11 @@ for i in range(len(dsets)):
     dfcv = dfstd/dfmean
     
     dfc = pd.concat([dfmax, dfmin, dfmean, dfcv],axis=1)
-    dfc.columns = ['MIN','MAX','MEAN','CV'] 
+    dfc.columns = ['MAX','MIN','MEAN','CV'] 
     
     dfm = pd.DataFrame([['dset'+str(i+1),np.nan,np.nan,np.nan],[dates[i]['s'],np.nan,np.nan,np.nan], [dates[i]['e'],np.nan,np.nan,np.nan]])
     dfm.index = ['dataset','start','end']
-    dfm.columns = ['MIN','MAX','MEAN','CV'] 
+    dfm.columns = ['MAX','MIN','MEAN','CV'] 
     
     dfr = pd.concat([dfm, dfc],axis=0)
     
@@ -127,11 +127,11 @@ for i in range(len(dsets)):
     dfcv = dfstd/dfmean
     
     dfc = pd.concat([dfmax, dfmin, dfmean, dfcv],axis=1)
-    dfc.columns = ['MIN','MAX','MEAN','CV'] 
+    dfc.columns = ['MAX','MIN','MEAN','CV'] 
     
     dfm = pd.DataFrame([['dset'+str(i+1),np.nan,np.nan,np.nan],[dates[i]['s'],np.nan,np.nan,np.nan], [dates[i]['e'],np.nan,np.nan,np.nan]])
     dfm.index = ['dataset','start','end']
-    dfm.columns = ['MIN','MAX','MEAN','CV'] 
+    dfm.columns = ['MAX','MIN','MEAN','CV'] 
     
     dfr = pd.concat([dfm, dfc],axis=0)
     
@@ -143,8 +143,8 @@ for d in dfrs_da[1:]:
     dfda = pd.concat([dfda,d],axis=1)
     
 dftemp = dfda['MEAN']
-dftemp['MEANS ABSCV'] =  np.round(np.abs(dftemp.std(axis=1)/dftemp.mean(axis=1))*100,2)
-dfda['MEANS ABSCV'] = dftemp['MEANS ABSCV']
+dftemp['MEANS ABSCV (%)'] =  np.round(np.abs(dftemp.std(axis=1)/dftemp.mean(axis=1))*100,2)
+dfda['MEANS ABSCV (%)'] = dftemp['MEANS ABSCV (%)']
 
 
 dfmae = dfrs_mae[0]
@@ -152,8 +152,8 @@ for d in dfrs_mae[1:]:
     dfmae = pd.concat([dfmae,d],axis=1)
     
 dftemp = dfmae['MEAN']
-dftemp['MEANS ABSCV'] =  np.round(np.abs(dftemp.std(axis=1)/dftemp.mean(axis=1))*100,2)
-dfmae['MEANS ABSCV'] = dftemp['MEANS ABSCV']
+dftemp['MEANS ABSCV (%)'] =  np.round(np.abs(dftemp.std(axis=1)/dftemp.mean(axis=1))*100,2)
+dfmae['MEANS ABSCV (%)'] = dftemp['MEANS ABSCV (%)']
 
     
 dfdis = dfrs_dis[0]
@@ -161,8 +161,8 @@ for d in dfrs_dis[1:]:
     dfdis = pd.concat([dfdis,d],axis=1)
 
 dftemp = dfdis['MEAN']
-dftemp['MEANS ABSCV'] =  np.round(np.abs(dftemp.std(axis=1)/dftemp.mean(axis=1))*100,2)
-dfdis['MEANS ABSCV'] = dftemp['MEANS ABSCV']
+dftemp['MEANS ABSCV (%)'] =  np.round(np.abs(dftemp.std(axis=1)/dftemp.mean(axis=1))*100,2)
+dfdis['MEANS ABSCV (%)'] = dftemp['MEANS ABSCV (%)']
 
 #%% SAVE RESULTS
 
