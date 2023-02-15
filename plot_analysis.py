@@ -213,7 +213,7 @@ t = 'DA vs MAE - MAX DA - '+sample
 c = 'royalblue'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -237,7 +237,7 @@ t = 'DA vs DIS - MAX DA - '+sample
 c = 'royalblue'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -261,7 +261,7 @@ t = 'MAE vs DIS - MAX DA - '+sample
 c = 'royalblue'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -287,7 +287,7 @@ t = 'DA vs DAO - MAX DA - '+sample
 c = 'salmon'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -313,7 +313,7 @@ t = 'DA vs RMSE_DIR - MAX DA - '+sample
 c = 'seagreen'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -342,7 +342,7 @@ df = da.copy()
 df[xvar[0]] = np.log(df[xvar[0]])
 
 fig = px.scatter(df, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -369,7 +369,7 @@ df = da.copy()
 df[xvar[0]] = np.log(df[xvar[0]])
 
 fig = px.scatter(df, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -397,7 +397,7 @@ df[xvar[0]] = np.log(df[xvar[0]])
 
 
 fig = px.scatter(df, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -425,7 +425,7 @@ df[xvar[0]] = np.log(df[xvar[0]])
 
 
 fig = px.scatter(df, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -451,7 +451,7 @@ t = 'RMSE_DH vs DAH - MAX DA - '+sample
 c = 'slategray'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -475,7 +475,7 @@ t = 'DA vs DAH - MAX DA - '+sample
 c = 'slategray'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -501,7 +501,7 @@ t = 'DA vs HP_MEAN - MAX DA - '+sample
 c = 'blueviolet'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -526,7 +526,7 @@ t = 'DA vs HN_MEAN - MAX DA - '+sample
 c = 'blueviolet'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -551,7 +551,7 @@ t = 'DA vs HT_MEAN - MAX DA - '+sample
 c = 'blueviolet'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -576,7 +576,7 @@ t = 'MAE vs HT_MEAN - MAX DA - '+sample
 c = 'blueviolet'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -601,7 +601,7 @@ t = 'DIS vs HT_MEAN - MAX DA - '+sample
 c = 'blueviolet'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -628,7 +628,7 @@ t = 'DA vs CC_DMAS_XMAS - MAX DA - '+sample
 c = 'tomato'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
@@ -653,7 +653,7 @@ t = 'DA vs CC_DMENOS_XMAS - MAX DA - '+sample
 c = 'tomato'
 
 fig = px.scatter(da, y=yvar[0], x=xvar[0], title=t, trendline='ols',color_discrete_sequence=[c],
-                 width=figsize[0]*dpi, height=figsize[1]*dpi)
+                 width=figsize[0]*dpi, height=figsize[1]*dpi, hover_data=['STOCK'])
 fig.update_layout(plot_bgcolor='white',showlegend=False)
 fig.update_xaxes(showline=False,linecolor='black',showgrid=False,gridcolor='lightgrey',title=xvar[1])
 fig.update_yaxes(showline=False,linecolor='black',showgrid=True,gridcolor='lightgrey',title=yvar[1])
