@@ -256,7 +256,7 @@ if grid_flag == True:
             timelapse.append(elapsed)
         
         
-        with open(outfolder2 + 'mae/' + 'grid_results.lzma' , 'wb') as file:
+        with open(outfolder2 + 'mae_grid_results.lzma' , 'wb') as file:
             cpickle.dump(mae_results_dict, file, compression='lzma')
     
     
@@ -295,7 +295,7 @@ if grid_flag == True:
             elapsed = end - start
             timelapse.append(elapsed)
         
-        with open(outfolder2 + 'da/' + 'grid_results.lzma' , 'wb') as file:
+        with open(outfolder2 + 'da_grid_results.lzma' , 'wb') as file:
             cpickle.dump(da_results_dict, file, compression='lzma')
         
     
@@ -334,12 +334,54 @@ if grid_flag == True:
             elapsed = end - start
             timelapse.append(elapsed)
         
-        with open(outfolder2 + 'dis/' + 'grid_results.lzma' , 'wb') as file:
+        with open(outfolder2 + 'dis_grid_results.lzma' , 'wb') as file:
             cpickle.dump(dis_results_dict, file, compression='lzma')
 
 #%% EXPORT TRADING DATA 
 
+print('\nRecovering y predictions ...')
 
-mae_opt_dict = {'price':None, 'last':None, 'y':None}
-da_opt_dict = {'price':None, 'last':None, 'y':None}
-dis_opt_dict = {'price':None, 'last':None, 'y':None}
+mae_preds = cpickle.load('output/trading_simulation/'+dset_path+'mae_grid_results.lzma')
+da_preds = cpickle.load('output/trading_simulation/'+dset_path+'da_grid_results.lzma')
+dis_preds = cpickle.load('output/trading_simulation/'+dset_path+'dis_grid_results.lzma')
+
+print('     ...Done!')
+
+print('\nBuilding trading data dictos...')
+
+mae_opt_dict = {}
+da_opt_dict = {}
+dis_opt_dict = {}
+
+for t in tickers:
+    
+    mae_df = mae_preds[t]
+    mae_df['PREDICTION'] = mae_df['NORM_PREDICTION']*mae_df['STD'] + mae_df['MEANS']
+    mae_stock_dicto = {'prices':prices_dict[t].loc[mae_df.index,:], 'last':mae_lasts_dict[t], 'ypred':mae_df['PREDICTION'], 'config':mae_configs_dict[t]}
+    mae_opt_dict[t] = mae_stock_dicto
+    
+    da_df = da_preds[t]
+    da_df['PREDICTION'] = da_df['NORM_PREDICTION']*da_df['STD'] + da_df['MEANS']
+    da_stock_dicto = {'prices':prices_dict[t].loc[da_df.index,:], 'last':da_lasts_dict[t], 'ypred':da_df['PREDICTION'], 'config':da_configs_dict[t]}
+    da_opt_dict[t] = da_stock_dicto
+    
+    dis_df = dis_preds[t]
+    dis_df['PREDICTION'] = dis_df['NORM_PREDICTION']*dis_df['STD'] + dis_df['MEANS']
+    dis_stock_dicto = {'prices':prices_dict[t].loc[dis_df.index,:], 'last':dis_lasts_dict[t], 'ypred':dis_df['PREDICTION'], 'config':dis_configs_dict[t]}
+    dis_opt_dict[t] = dis_stock_dicto
+
+print('     ...Done!')
+
+
+print('\nSaving trading data dictos ...')
+
+with open(outfolder2 + 'mae_trading_data.lzma' , 'wb') as file:
+    cpickle.dump(mae_opt_dict, file, compression='lzma')
+
+with open(outfolder2 + 'dis_trading_data.lzma' , 'wb') as file:
+    cpickle.dump(dis_opt_dict, file, compression='lzma')
+
+with open(outfolder2 + 'da_trading_data.lzma' , 'wb') as file:
+    cpickle.dump(da_opt_dict, file, compression='lzma')
+
+print('     ...Done!')
