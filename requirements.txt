@@ -1,6 +1,6 @@
 numpy
 pandas
-pyzmq==24 --upgrade
+pyzmq==24
 scipy
 openpyxl
 plotly
