@@ -7,3 +7,5 @@ plotly
 compress_pickle
 kaleido
 statsmodels
+scikit-learn
+lxml

@@ -1,0 +1,40 @@
+\begin{center}
+\begin{tabular}{lclc}
+\toprule
+\textbf{Dep. Variable:}    &        DA        & \textbf{  R-squared:         } &     0.369   \\
+\textbf{Model:}            &       OLS        & \textbf{  Adj. R-squared:    } &     0.360   \\
+\textbf{Method:}           &  Least Squares   & \textbf{  F-statistic:       } &     41.85   \\
+\textbf{Date:}             & Wed, 22 Mar 2023 & \textbf{  Prob (F-statistic):} &  3.71e-40   \\
+\textbf{Time:}             &     15:37:51     & \textbf{  Log-Likelihood:    } &    1413.7   \\
+\textbf{No. Observations:} &         437      & \textbf{  AIC:               } &    -2813.   \\
+\textbf{Df Residuals:}     &         430      & \textbf{  BIC:               } &    -2785.   \\
+\textbf{Df Model:}         &           6      & \textbf{                     } &             \\
+\textbf{Covariance Type:}  &    nonrobust     & \textbf{                     } &             \\
+\bottomrule
+\end{tabular}
+\begin{tabular}{lcccccc}
+                           & \textbf{coef} & \textbf{std err} & \textbf{t} & \textbf{P$> |$t$|$} & \textbf{[0.025} & \textbf{0.975]}  \\
+\midrule
+\textbf{const}             &       0.3320  &        0.013     &    25.410  &         0.000        &        0.306    &        0.358     \\
+\textbf{WINDOW\_SIZE}      &    8.404e-06  &     2.55e-06     &     3.290  &         0.001        &     3.38e-06    &     1.34e-05     \\
+\textbf{P\_LAGS}           &    9.694e-05  &     4.81e-05     &     2.016  &         0.044        &     2.43e-06    &        0.000     \\
+\textbf{VOLUME\_COEF\_VAR} &       0.0042  &        0.002     &     2.707  &         0.007        &        0.001    &        0.007     \\
+\textbf{STREAK\_PROBA}     &       0.3564  &        0.026     &    13.693  &         0.000        &        0.305    &        0.408     \\
+\textbf{MEAN\_PRICE}       &    2.083e-05  &     5.32e-06     &     3.918  &         0.000        &     1.04e-05    &     3.13e-05     \\
+\textbf{PRICE\_STD}        &    -6.59e-05  &      1.6e-05     &    -4.125  &         0.000        &    -9.73e-05    &    -3.45e-05     \\
+\bottomrule
+\end{tabular}
+\begin{tabular}{lclc}
+\textbf{Omnibus:}       &  1.866 & \textbf{  Durbin-Watson:     } &    2.130  \\
+\textbf{Prob(Omnibus):} &  0.393 & \textbf{  Jarque-Bera (JB):  } &    1.854  \\
+\textbf{Skew:}          &  0.103 & \textbf{  Prob(JB):          } &    0.396  \\
+\textbf{Kurtosis:}      &  2.757 & \textbf{  Cond. No.          } & 2.09e+04  \\
+\bottomrule
+\end{tabular}
+%\caption{OLS Regression Results}
+\end{center}
+
+Notes: \newline
+ [1] Standard Errors assume that the covariance matrix of the errors is correctly specified. \newline
+ [2] The condition number is large, 2.09e+04. This might indicate that there are \newline
+ strong multicollinearity or other numerical problems.

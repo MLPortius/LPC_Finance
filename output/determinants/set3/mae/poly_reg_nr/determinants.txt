@@ -1,0 +1,53 @@
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                    MAE   R-squared:                       0.259
+Model:                            OLS   Adj. R-squared:                  0.223
+Method:                 Least Squares   F-statistic:                     7.260
+Date:                Wed, 22 Mar 2023   Prob (F-statistic):           1.33e-17
+Time:                        15:37:55   Log-Likelihood:                 1328.8
+No. Observations:                 437   AIC:                            -2616.
+Df Residuals:                     416   BIC:                            -2530.
+Df Model:                          20                                         
+Covariance Type:            nonrobust                                         
+================================================================================================
+                                   coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------------------
+const                         1.653e-05    4.2e-05      0.394      0.694    -6.6e-05    9.91e-05
+WINDOW_SIZE                      0.0050      0.013      0.394      0.694      -0.020       0.030
+P_LAGS                        1.652e-05   4.21e-05      0.393      0.695   -6.62e-05    9.92e-05
+VOLUME_COEF_VAR               3.849e-06   1.09e-05      0.352      0.725   -1.76e-05    2.53e-05
+STREAK_PROBA                  1.982e-05   1.27e-05      1.560      0.120   -5.16e-06    4.48e-05
+MEAN_PRICE                       0.0005      0.001      0.394      0.694      -0.002       0.003
+PRICE_STD                        0.0003      0.001      0.394      0.694      -0.001       0.002
+WINDOW_SIZE^2                -1.167e-05   2.11e-05     -0.553      0.580   -5.31e-05    2.98e-05
+WINDOW_SIZE P_LAGS           -1.334e-05      0.000     -0.084      0.933      -0.000       0.000
+WINDOW_SIZE VOLUME_COEF_VAR     -0.0003      0.000     -1.645      0.101      -0.001    5.35e-05
+WINDOW_SIZE STREAK_PROBA         0.0094      0.004      2.232      0.026       0.001       0.018
+WINDOW_SIZE MEAN_PRICE       -1.015e-06   2.53e-06     -0.401      0.689   -5.99e-06    3.96e-06
+WINDOW_SIZE PRICE_STD         6.171e-07   2.23e-06      0.276      0.783   -3.77e-06    5.01e-06
+P_LAGS^2                       1.65e-05   4.23e-05      0.390      0.696   -6.66e-05    9.96e-05
+P_LAGS VOLUME_COEF_VAR          -0.0059      0.011     -0.553      0.580      -0.027       0.015
+P_LAGS STREAK_PROBA              0.0370      0.197      0.187      0.851      -0.350       0.424
+P_LAGS MEAN_PRICE            -3.378e-05   7.69e-05     -0.439      0.661      -0.000       0.000
+P_LAGS PRICE_STD              3.268e-05   9.92e-05      0.329      0.742      -0.000       0.000
+VOLUME_COEF_VAR^2                0.0117      0.006      1.819      0.070      -0.001       0.024
+VOLUME_COEF_VAR STREAK_PROBA     0.2790      0.186      1.500      0.134      -0.087       0.645
+VOLUME_COEF_VAR MEAN_PRICE       0.0002   6.45e-05      2.340      0.020    2.42e-05       0.000
+VOLUME_COEF_VAR PRICE_STD       -0.0001    9.8e-05     -1.514      0.131      -0.000    4.43e-05
+STREAK_PROBA^2                  -5.9465      2.481     -2.397      0.017     -10.823      -1.070
+STREAK_PROBA MEAN_PRICE          0.0003      0.001      0.196      0.844      -0.003       0.003
+STREAK_PROBA PRICE_STD          -0.0018      0.002     -0.808      0.420      -0.006       0.003
+MEAN_PRICE^2                  7.152e-07      1e-07      7.146      0.000    5.18e-07    9.12e-07
+MEAN_PRICE PRICE_STD         -2.806e-06   3.82e-07     -7.336      0.000   -3.56e-06   -2.05e-06
+PRICE_STD^2                   2.706e-06   3.68e-07      7.361      0.000    1.98e-06    3.43e-06
+==============================================================================
+Omnibus:                        6.121   Durbin-Watson:                   2.043
+Prob(Omnibus):                  0.047   Jarque-Bera (JB):                5.925
+Skew:                           0.260   Prob(JB):                       0.0517
+Kurtosis:                       3.236   Cond. No.                     9.12e+19
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The smallest eigenvalue is 7.62e-27. This might indicate that there are
+strong multicollinearity problems or that the design matrix is singular.
