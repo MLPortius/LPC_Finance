@@ -1,0 +1,61 @@
+\begin{center}
+\begin{tabular}{lclc}
+\toprule
+\textbf{Dep. Variable:}                  &       MAE        & \textbf{  R-squared:         } &     0.259   \\
+\textbf{Model:}                          &       OLS        & \textbf{  Adj. R-squared:    } &     0.223   \\
+\textbf{Method:}                         &  Least Squares   & \textbf{  F-statistic:       } &     7.260   \\
+\textbf{Date:}                           & Wed, 22 Mar 2023 & \textbf{  Prob (F-statistic):} &  1.33e-17   \\
+\textbf{Time:}                           &     15:37:55     & \textbf{  Log-Likelihood:    } &    1328.8   \\
+\textbf{No. Observations:}               &         437      & \textbf{  AIC:               } &    -2616.   \\
+\textbf{Df Residuals:}                   &         416      & \textbf{  BIC:               } &    -2530.   \\
+\textbf{Df Model:}                       &          20      & \textbf{                     } &             \\
+\textbf{Covariance Type:}                &    nonrobust     & \textbf{                     } &             \\
+\bottomrule
+\end{tabular}
+\begin{tabular}{lcccccc}
+                                         & \textbf{coef} & \textbf{std err} & \textbf{t} & \textbf{P$> |$t$|$} & \textbf{[0.025} & \textbf{0.975]}  \\
+\midrule
+\textbf{const}                           &    1.653e-05  &      4.2e-05     &     0.394  &         0.694        &     -6.6e-05    &     9.91e-05     \\
+\textbf{WINDOW\_SIZE}                    &       0.0050  &        0.013     &     0.394  &         0.694        &       -0.020    &        0.030     \\
+\textbf{P\_LAGS}                         &    1.652e-05  &     4.21e-05     &     0.393  &         0.695        &    -6.62e-05    &     9.92e-05     \\
+\textbf{VOLUME\_COEF\_VAR}               &    3.849e-06  &     1.09e-05     &     0.352  &         0.725        &    -1.76e-05    &     2.53e-05     \\
+\textbf{STREAK\_PROBA}                   &    1.982e-05  &     1.27e-05     &     1.560  &         0.120        &    -5.16e-06    &     4.48e-05     \\
+\textbf{MEAN\_PRICE}                     &       0.0005  &        0.001     &     0.394  &         0.694        &       -0.002    &        0.003     \\
+\textbf{PRICE\_STD}                      &       0.0003  &        0.001     &     0.394  &         0.694        &       -0.001    &        0.002     \\
+\textbf{WINDOW\_SIZE^2}                  &   -1.167e-05  &     2.11e-05     &    -0.553  &         0.580        &    -5.31e-05    &     2.98e-05     \\
+\textbf{WINDOW\_SIZE P\_LAGS}            &   -1.334e-05  &        0.000     &    -0.084  &         0.933        &       -0.000    &        0.000     \\
+\textbf{WINDOW\_SIZE VOLUME\_COEF\_VAR}  &      -0.0003  &        0.000     &    -1.645  &         0.101        &       -0.001    &     5.35e-05     \\
+\textbf{WINDOW\_SIZE STREAK\_PROBA}      &       0.0094  &        0.004     &     2.232  &         0.026        &        0.001    &        0.018     \\
+\textbf{WINDOW\_SIZE MEAN\_PRICE}        &   -1.015e-06  &     2.53e-06     &    -0.401  &         0.689        &    -5.99e-06    &     3.96e-06     \\
+\textbf{WINDOW\_SIZE PRICE\_STD}         &    6.171e-07  &     2.23e-06     &     0.276  &         0.783        &    -3.77e-06    &     5.01e-06     \\
+\textbf{P\_LAGS^2}                       &     1.65e-05  &     4.23e-05     &     0.390  &         0.696        &    -6.66e-05    &     9.96e-05     \\
+\textbf{P\_LAGS VOLUME\_COEF\_VAR}       &      -0.0059  &        0.011     &    -0.553  &         0.580        &       -0.027    &        0.015     \\
+\textbf{P\_LAGS STREAK\_PROBA}           &       0.0370  &        0.197     &     0.187  &         0.851        &       -0.350    &        0.424     \\
+\textbf{P\_LAGS MEAN\_PRICE}             &   -3.378e-05  &     7.69e-05     &    -0.439  &         0.661        &       -0.000    &        0.000     \\
+\textbf{P\_LAGS PRICE\_STD}              &    3.268e-05  &     9.92e-05     &     0.329  &         0.742        &       -0.000    &        0.000     \\
+\textbf{VOLUME\_COEF\_VAR^2}             &       0.0117  &        0.006     &     1.819  &         0.070        &       -0.001    &        0.024     \\
+\textbf{VOLUME\_COEF\_VAR STREAK\_PROBA} &       0.2790  &        0.186     &     1.500  &         0.134        &       -0.087    &        0.645     \\
+\textbf{VOLUME\_COEF\_VAR MEAN\_PRICE}   &       0.0002  &     6.45e-05     &     2.340  &         0.020        &     2.42e-05    &        0.000     \\
+\textbf{VOLUME\_COEF\_VAR PRICE\_STD}    &      -0.0001  &      9.8e-05     &    -1.514  &         0.131        &       -0.000    &     4.43e-05     \\
+\textbf{STREAK\_PROBA^2}                 &      -5.9465  &        2.481     &    -2.397  &         0.017        &      -10.823    &       -1.070     \\
+\textbf{STREAK\_PROBA MEAN\_PRICE}       &       0.0003  &        0.001     &     0.196  &         0.844        &       -0.003    &        0.003     \\
+\textbf{STREAK\_PROBA PRICE\_STD}        &      -0.0018  &        0.002     &    -0.808  &         0.420        &       -0.006    &        0.003     \\
+\textbf{MEAN\_PRICE^2}                   &    7.152e-07  &        1e-07     &     7.146  &         0.000        &     5.18e-07    &     9.12e-07     \\
+\textbf{MEAN\_PRICE PRICE\_STD}          &   -2.806e-06  &     3.82e-07     &    -7.336  &         0.000        &    -3.56e-06    &    -2.05e-06     \\
+\textbf{PRICE\_STD^2}                    &    2.706e-06  &     3.68e-07     &     7.361  &         0.000        &     1.98e-06    &     3.43e-06     \\
+\bottomrule
+\end{tabular}
+\begin{tabular}{lclc}
+\textbf{Omnibus:}       &  6.121 & \textbf{  Durbin-Watson:     } &    2.043  \\
+\textbf{Prob(Omnibus):} &  0.047 & \textbf{  Jarque-Bera (JB):  } &    5.925  \\
+\textbf{Skew:}          &  0.260 & \textbf{  Prob(JB):          } &   0.0517  \\
+\textbf{Kurtosis:}      &  3.236 & \textbf{  Cond. No.          } & 9.12e+19  \\
+\bottomrule
+\end{tabular}
+%\caption{OLS Regression Results}
+\end{center}
+
+Notes: \newline
+ [1] Standard Errors assume that the covariance matrix of the errors is correctly specified. \newline
+ [2] The smallest eigenvalue is 7.62e-27. This might indicate that there are \newline
+ strong multicollinearity problems or that the design matrix is singular.
