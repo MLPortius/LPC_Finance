@@ -9,3 +9,5 @@ kaleido
 statsmodels
 scikit-learn
 lxml
+eikon==1.1.16
+ta==0.10.2
