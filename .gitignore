@@ -1,6 +1,8 @@
 classes/__pycache__
 classes/__pycache__/*
 
+input/pcr/open_interest.csv
+
 temp-plot.html
 
 .temp/
