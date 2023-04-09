@@ -77,6 +77,7 @@ print('\nLoading prices...')
 
 prices = cpickle.load('input/cpickle/tickers_data.lzma')
 
+print('     ...done!')
 
 #%% INDUSTRY
 
@@ -558,20 +559,30 @@ print('     ...done!')
 
 print('\nPreparing VOLATILITY data ...')
 
+data = {}
+
+for tag in lpc:
+    
+    d = prices[tag]
+    d = d['CLOSE'].to_frame()
+    d['Ri'] = (d['CLOSE'] - d['CLOSE'].shift(1)) / d['CLOSE'].shift(1)
+    d['Ri'] = d['Ri'] * 100
+    d.dropna(axis=0, inplace=True)
+    data[tag] = d
+
 stds = {}
 
 for tag in lpc:
     
-    print('\n',tag,'...')
-    data = prices[tag]
-    close = data.loc[:,'CLOSE'].to_frame()
-    std_st = close.rolling(21).std()
-    std_lt = close.rolling(252).std()
+    d = data[tag]
     
-    close = pd.concat([close, std_st, std_lt],axis=1)
-    close.columns = ['CLOSE','STD_ST','STD_LT']
+    d['P_STD_21'] = d['CLOSE'].rolling(21).std()
+    d['R_STD_21'] = d['Ri'].rolling(21).std()
     
-    stds[tag] = close
+    d['P_STD_252'] = d['CLOSE'].rolling(252).std()
+    d['R_STD_252'] = d['Ri'].rolling(252).std()
+    
+    stds[tag] = d
 
 print('\n     ...done!')
 
