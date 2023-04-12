@@ -109,6 +109,71 @@ def GET_RETURNS_DICT(i, save=False):
             
         return output
         
+def GET_VOLUMES_DICT(i):
+    
+    dicto = cpickle.load('input/cpickle/lpc_datasets.lzma')
+    
+    d1 = dicto['set1']
+    d2 = dicto['set2']
+
+    d1 = [x['vols'] for x in d1]
+    d2 = [x['vols'] for x in d2]
+    
+    df1 = d1[0]
+    for d in d1[1:]:
+        df1 = pd.concat([df1, d], axis=1)
+    
+    df2 = d2[0]
+    for d in d2[1:]:
+        df2 = pd.concat([df2, d], axis=1)
+        
+    df3 = pd.concat([df1, df2], axis=0)
+    
+    
+    if i == 1:
+        output = {}
+        for c in list(df1.columns):
+            output[c] = df1.loc[:,c]
+    
+    elif i == 2:
+        output = {}
+        for c in list(df2.columns):
+            output[c] = df2.loc[:,c]
+    
+    elif i == 3:
+        output = {}
+        for c in list(df3.columns):
+            output[c] = df3.loc[:,c]
+            
+    else:
+        output = 'error'
+    
+    return output
+
+# https://www.avatrade.es/educacion/trading-para-principiantes/indicador-adx
+# https://www.investopedia.com/articles/trading/07/adx-trend-indicator.asp
+
+def ADX_CAT(x):
+    
+    if x < 25:
+        y = 'WEAK_NO_TREND'
+    elif x >= 25 and x<50:
+        y = 'STRONG_TREND'
+    elif x >= 50 and x<75:
+        y = 'VERY_STRONG_TREND'
+    elif x>=75:
+        y = 'EXTREMELY_STRONG_TREND'
+    
+    return y
+
+def ADX_BINARY(x):
+    if x < 25:
+        y = 0
+    else:
+        y = 1
+    return y
+
+        
     
 #%% TICKERS 
 
@@ -440,132 +505,542 @@ print('     ...done!')
 del(da, dis, mae)
 
 
+#%% MARKET CAP
+
+print('\nPreparing MARKET CAP data...')
+
+data = cpickle.load(infolder2 + 'marketcap_dict.lzma')
+close = GET_RETURNS_DICT(ds)
+
+mcaps = {}
+
+for t in tickers:
+    
+    d = data[t]
+    d = d/1000000
+    
+    c = close[t]
+    
+    m = pd.merge(c, d, left_index=True, right_index=True, how='left')
+    m.ffill(inplace=True)
+    m = m['MARKET_CAP']
+    
+    mcap_mean = m.mean()
+    mcap_last = m.iloc[-1]
+    
+    m2 = m.rolling(21).mean()
+    m2.dropna(axis=0, inplace=True)
+    
+    mcap_rmean = m2.mean()
+    
+    mcaps[t] = [mcap_last, mcap_mean, mcap_rmean]
+
+mcaps = pd.DataFrame(mcaps.values(), index=mcaps.keys())
+mcaps.columns = ['MARKETCAP_LAST','MARKETCAP_MEAN', 'MARKETCAP_RMEAN']
+
+main = pd.concat([main, mcaps['MARKETCAP_RMEAN']],axis=1)
+
+print('     ...done!')
+
+del(data, close, mcaps, t, d, c, m, mcap_last, mcap_mean, mcap_rmean, m2)
+
+
+#%% VOLUME
+
+print('\nPreparing VOLUMES data...')
+
+close = GET_RETURNS_DICT(ds)
+vols = GET_VOLUMES_DICT(ds)
+
+vs = {}
+
+for t in tickers:
+    
+    c = close[t]
+    r = (c - c.shift(1))/c.shift(1)
+    
+    v = vols[t]
+    v = v/1000000
+    
+    v_mean = v.mean()
+    v_std = v.std()
+    v_cv = (v_std/v_mean)*100
+    
+    v2 = v.rolling(21).mean()
+    v2.dropna(inplace=True)
+    
+    v_rmean = v2.mean()
+    
+    v_last = v.iloc[-1]
+    
+    d = pd.concat([v, r], axis=1)
+    d.dropna(inplace=True)
+    d.columns = ['Vi','Ri']
+    
+    v_rcorr = np.corrcoef(d['Vi'],d['Ri'])[1][0]
+    
+    cov = d.cov()
+    v_rbeta = cov.loc['Vi','Ri']/cov.loc['Vi','Vi']
+    
+    vs[t] = [v_last, v_mean, v_cv, v_rmean, v_rcorr, v_rbeta]
+
+vs = pd.DataFrame(vs.values(), index=vs.keys())
+
+vs.columns = ['VOLUME_LAST', 'VOLUME_MEAN', 'VOLUME_CV', 
+              'VOLUME_RMEAN', 'VOLUME_RET_CORR', 'VOLUME_RET_BETA']
+
+vs = vs.loc[:,['VOLUME_CV', 'VOLUME_RMEAN', 'VOLUME_RET_BETA']]
+
+main = pd.concat([main, vs], axis=1)
+
+print('     ...done!')
+
+del(d, c, cov, r, t, v, v2, v_cv, v_last, v_mean, v_rbeta, v_rcorr, v_rmean, v_std, vols, vs, close)
+
+
+#%% PRICE TO BOOK
+
+print('\nPreparing PRICE TO BOOK data...')
+
+data = cpickle.load(infolder2 + 'pricetobook_dict.lzma')
+
+close = GET_RETURNS_DICT(ds)
+
+pbps = {}
+
+for t in tickers:
+    
+    p = data[t]
+    c = close[t]
+    
+    d = pd.merge(c, p, left_index=True, right_index=True, how='left')
+    d = d['PBPERSHARE']
+    
+    pbps_last = d.iloc[-1]
+    pbps_mean = d.mean()
+    pbps_rmean = d.rolling(21).mean().mean()
+    
+    pbps[t] = [pbps_last, pbps_mean, pbps_rmean]   
+
+pbps = pd.DataFrame(pbps.values(), index = pbps.keys())
+pbps.columns = ['PBPERSHARE_LAST','PBPERSHARE_MEAN', 'PBPERSHARE_RMEAN']
+
+main = pd.concat([main, pbps.loc[:,['PBPERSHARE_RMEAN']]], axis=1)
+
+print('     ...done!')
+
+del(c, close, d, data, p, pbps, pbps_last, pbps_mean, pbps_rmean, t)
+
+
+#%% STREAK PROBA
+
+print('\nPreparing STREAK HISTOGRAM data...')
+
+da = pd.read_excel(infolder+dpath+'da_opt.xlsx', index_col='stock')
+
+dh = pd.read_excel('output/analysis/'+dset+'/histos.xlsx')
+cols = list(dh.columns)
+cols[0] = 'stock'
+dh.columns = cols
+dh.set_index('stock', drop=True, inplace=True)
+
+d = pd.concat([da['ht_mean'], dh], axis=1)
+d.columns = ['STREAK_HMEAN','STREAK_PROBA','MAX_STREAK']
+d['STREAK_PROBA'] = d['STREAK_PROBA'] * 100
+
+main = pd.concat([main, d], axis=1)
+
+print('     ...done!')
+
+del(cols, d, da, dh)
+
+
+#%% ADX
+
+print('\nPreparing ADX data...')
+
+data = cpickle.load(infolder2 + 'adx_dict.lzma')
+close = GET_RETURNS_DICT(ds)
+
+adxs = {}
+
+for t in tickers:
+    
+    d = data[t]
+    c = close[t]
+    
+    d = pd.merge(c, d, left_index=True, right_index=True, how='left')
+    d = d['ADX30D']
+    d.replace(0, np.nan, inplace=True)
+    d.dropna(inplace=True)
+    
+    adx_mean = d.mean()
+    
+    df = d.to_frame()
+    df.columns = ['ADX']
+    df['CAT'] = df['ADX'].apply(ADX_BINARY)
+
+    tdays = df['CAT'].sum()
+    tproba = df['CAT'].mean()
+    tproba = tproba * 100
+    
+    adxs[t] = [adx_mean, tdays, tproba]
+
+adxs = pd.DataFrame(adxs.values(), index = adxs.keys())
+adxs.columns = ['ADX30D_MEAN','ADX30D_TREND_DAYS', 'ADX30D_TREND_PROBA']
+
+main = pd.concat([main, adxs['ADX30D_TREND_DAYS']], axis=1)
+
+print('     ...done!')
+
+del(adx_mean, adxs, c, close, d, data, df, t, tdays, tproba)
+
+
+#%% VIX
+
+print('\nPreparing VIX data...')
+
+data = cpickle.load(infolder2 + 'vix.lzma')
+vix = data['CLOSE'].to_frame()
+vix.columns = ['VIXi']
+
+vix.index = [x.date() for x in list(vix.index)]
+
+close = GET_RETURNS_DICT(ds)
+
+vixs = {}
+
+for t in tickers:
+    
+    c = close[t]
+    r = (c - c.shift(1))/c.shift(1)
+
+    r.dropna(inplace=True)
+    r = r * 100
+    
+    d = pd.merge(r, vix, left_index=True, right_index=True, how='left')
+    d.columns = ['Ri', 'VIXi']    
+    
+    cov = d.cov()
+
+    vbeta = cov.loc['Ri','VIXi']/cov.loc['VIXi','VIXi']
+
+    vixs[t] = vbeta
+    
+vixs = pd.DataFrame(vixs.values(), index = vixs.keys())
+vixs.columns = ['VIX_BETA']
+
+main = pd.concat([main, vixs], axis=1)
+
+print('     ...done!')
+
+del(c, close, cov, d, data, r, t, vbeta, vix, vixs)
+
+
+#%% ANALYST DISPERSION
+
+print('\nPreparing ANALYST DISPERSION data ...')
+
+data = cpickle.load(infolder2 + 'analyst_eps_dict.lzma')
+close = GET_RETURNS_DICT(ds)
+
+adisp = {}
+
+for t in tickers:
+    
+    d = data[t]
+    d = d['EST_EPS_CV']
+    
+    c = close[t]
+    
+    m = pd.merge(c, d, left_index=True, right_index=True, how='left')
+    m.dropna(axis=0, inplace=True)
+
+    disp = m['EST_EPS_CV'] * 100
+    
+    if len(disp) != 0:
+ 
+        disp_mean = disp.mean()
+        disp_last = disp[-1]
+
+    else:
+        
+        disp_mean = np.nan
+        disp_last = np.nan
+    
+    adisp[t] = [disp_mean, disp_last]
+
+adisp = pd.DataFrame(adisp.values(), index=adisp.keys())
+adisp.columns = ['ANALYST_DISPERSION_MEAN', 'ANALYST_DISPERSION_LAST']
+
+main = pd.concat([main, adisp], axis=1)
+
+print('     ...done!')
+
+del(data, close, adisp, t, d, c, m, disp, disp_mean, disp_last)
+
+
+#%% ANALYST NUMBER
+
+print('\nPreparing ANALYST NUMBER data ...')
+
+data = cpickle.load(infolder2 + 'analyst_eps_dict.lzma')
+close = GET_RETURNS_DICT(ds)
+
+an = {}
+
+for t in tickers:
+    
+    d = data[t]
+    c = close[t]
+    
+    m = pd.merge(c, d['EST_EPS_NUMBER'], left_index=True, right_index=True, how='left')
+    m = m['EST_EPS_NUMBER']
+    m.dropna(inplace=True)
+    
+    if len(m) != 0:
+        
+        an_mean = m.mean()
+        an_last = m[-1]
+
+    else:
+        
+        an_mean = np.nan
+        an_last = np.nan
+        
+    an[t] = [an_mean, an_last]
+    
+an = pd.DataFrame(an.values(), index = an.keys())
+an.columns = ['ANALYST_NUMBER_MEAN','ANALYST_NUMBER_LAST']
+
+main = pd.concat([main, an], axis=1)
+
+print('     ...done!')
+
+del(data, close, an, t, d, c, m, an_mean, an_last)
+
+
+#%% PUT CALL RATIO
+
+print('\nPreparing PUT CALL RATIO data ...')
+
+data = cpickle.load(infolder3 + 'putcallratio.lzma')
+close = GET_RETURNS_DICT(ds)
+
+pcrs = {}
+
+for t in tickers:
+    
+    d = data[t]
+    d = d['PC_RATIO'] 
+    d.replace(np.inf, np.nan, inplace=True)
+    d.ffill(inplace=True)
+    
+    c = close[t] 
+    m = pd.merge(c, d, left_index=True, right_index=True, how='left')
+    m = m['PC_RATIO']
+    
+    if len(m) != 0:
+        
+        pcr_mean = m.mean()
+        pcr_last = m.iloc[-1]
+        pcr_rmean = m.rolling(21).mean().mean()
+    
+    else:
+        
+        pcr_mean = np.nan
+        pcr_last = np.nan
+        pcr_rmean = np.nan
+    
+    pcrs[t] = [pcr_mean, pcr_last, pcr_rmean]
+    
+pcrs = pd.DataFrame(pcrs.values(), index = pcrs.keys())
+pcrs.columns = ['PUTCALLRATIO_MEAN','PUTCALLRATIO_LAST','PUTCALLRATIO_RMEAN']
+
+main = pd.concat([main, pcrs], axis=1)
+
+print('     ...done!')
+
+del(data, close, pcrs, t, d, c, m, pcr_mean, pcr_last, pcr_rmean)
+
+
+#%% BIDASK
+
+print('\nPreparing BIDASK SPREAD data ...')
+
+data = cpickle.load(infolder2 + 'bidask_dict.lzma')
+close = GET_RETURNS_DICT(ds)
+
+bas = {}
+
+for t in tickers:
+    
+    if type(data[t]) == type(None):
+        
+        ba_mean = np.nan
+        ba_last = np.nan
+        ba_rmean = np.nan
+    
+    else:
+    
+        d = data[t]['BIDASK_SPREAD']
+        d.ffill(inplace=True)
+        
+        c = close[t]
+        
+        m = pd.merge(c, d, left_index=True, right_index=True, how='left')
+        m = m['BIDASK_SPREAD']
+        
+        if len(m) != 0:
+            
+            ba_mean = m.mean()
+            ba_last = m.iloc[-1]
+            ba_rmean = m.rolling(21).mean().mean()
+            
+        else:
+            
+            ba_mean = np.nan
+            ba_last = np.nan
+            ba_rmean = np.nan
+            
+    bas[t] = [ba_mean, ba_last, ba_rmean]
+    
+bas = pd.DataFrame(bas.values(), index=bas.keys())
+bas.columns = ['BIDASK_MEAN','BIDASK_LAST','BIDASK_RMEAN']
+
+main = pd.concat([main, bas], axis=1) 
+
+print('     ...done!')
+
+del(data, close, bas, t, d, c, m, ba_mean, ba_last, ba_rmean)
+
+
 #%%
 
 #%% DATA LOAD
 
-print('\nLoading data...')
+# print('\nLoading data...')
 
-""" 
+# """ 
   
-METRIC = b0 + b1 * VOLUMEN + b2 * TENDENCIA + b3i * INDUSTRIAi + b4 * PRECIO 
-            + b5 * STD PERIODO + b6 * VOLATILIDAD HISTORICA + b7 * DOLLAR VOLUME OF SY CP 
-            + b8 * DOLLAR VOLUME OF SY LP + b9 * BID-ASK SY + b10 * N. ANALISTAS SY
-            + b11 * DISPERSION ANALISTAS + b12 * C.O.R SY PRICE + b13 * SY MARKET CAP 
-            + b14 * RF LP + b15 * RF CP + b16 * SHORT SALE RATIO YY + b17 * SHORT SALE RATIO MM 
-            + b18 * P_LAGS + b19 * W_SIZE
+# METRIC = b0 + b1 * VOLUMEN + b2 * TENDENCIA + b3i * INDUSTRIAi + b4 * PRECIO 
+#             + b5 * STD PERIODO + b6 * VOLATILIDAD HISTORICA + b7 * DOLLAR VOLUME OF SY CP 
+#             + b8 * DOLLAR VOLUME OF SY LP + b9 * BID-ASK SY + b10 * N. ANALISTAS SY
+#             + b11 * DISPERSION ANALISTAS + b12 * C.O.R SY PRICE + b13 * SY MARKET CAP 
+#             + b14 * RF LP + b15 * RF CP + b16 * SHORT SALE RATIO YY + b17 * SHORT SALE RATIO MM 
+#             + b18 * P_LAGS + b19 * W_SIZE
 
-"""
+# """
 
-mae = pd.read_excel(infolder + dpath + 'mae_opt.xlsx')
-da = pd.read_excel(infolder + dpath + 'da_opt.xlsx')
-dis = pd.read_excel(infolder + dpath + 'dis_opt.xlsx')
+# mae = pd.read_excel(infolder + dpath + 'mae_opt.xlsx')
+# da = pd.read_excel(infolder + dpath + 'da_opt.xlsx')
+# dis = pd.read_excel(infolder + dpath + 'dis_opt.xlsx')
 
-metric_dict = {'MAE':mae, 'DA':da, 'DIS':dis}
+# metric_dict = {'MAE':mae, 'DA':da, 'DIS':dis}
 
-tickers = list(mae['stock'])
-
-
-print('     ... grid info')
-
-mae = ORDER_MDF(data=metric_dict, metric='MAE')
-da = ORDER_MDF(data=metric_dict, metric='DA')
-dis = ORDER_MDF(data=metric_dict, metric='DIS')
+# tickers = list(mae['stock'])
 
 
-print('     ... histogram info')
+# print('     ... grid info')
 
-histos = pd.read_excel(infolder + dpath + 'histos.xlsx')
-cols = list(histos.columns)
-cols[0] = 'stock'
-cols[1] = 'STREAK_PROBA'
-histos.columns = cols
-histos.set_index('stock',drop=True, inplace=True)
-
-mae = pd.concat([mae,histos['STREAK_PROBA']], axis=1)
-da = pd.concat([da,histos['STREAK_PROBA']], axis=1)
-dis = pd.concat([dis,histos['STREAK_PROBA']], axis=1)
+# mae = ORDER_MDF(data=metric_dict, metric='MAE')
+# da = ORDER_MDF(data=metric_dict, metric='DA')
+# dis = ORDER_MDF(data=metric_dict, metric='DIS')
 
 
-print('     ... stock data')
+# print('     ... histogram info')
 
-lpc_datasets = cpickle.load('input/cpickle/lpc_datasets.lzma')
+# histos = pd.read_excel(infolder + dpath + 'histos.xlsx')
+# cols = list(histos.columns)
+# cols[0] = 'stock'
+# cols[1] = 'STREAK_PROBA'
+# histos.columns = cols
+# histos.set_index('stock',drop=True, inplace=True)
+
+# mae = pd.concat([mae,histos['STREAK_PROBA']], axis=1)
+# da = pd.concat([da,histos['STREAK_PROBA']], axis=1)
+# dis = pd.concat([dis,histos['STREAK_PROBA']], axis=1)
+
+
+# print('     ... stock data')
+
+# lpc_datasets = cpickle.load('input/cpickle/lpc_datasets.lzma')
     
-if ds == 1:
+# if ds == 1:
     
-    lpc_datasets = lpc_datasets['set1']
+#     lpc_datasets = lpc_datasets['set1']
 
-    df_close = lpc_datasets[0]['close']
-    df_vols = lpc_datasets[0]['vols']
+#     df_close = lpc_datasets[0]['close']
+#     df_vols = lpc_datasets[0]['vols']
     
-    for d in lpc_datasets[1:]:
-       df_close = pd.concat([df_close, d['close']], axis=1) 
-       df_vols = pd.concat([df_vols, d['vols']], axis=1)
+#     for d in lpc_datasets[1:]:
+#        df_close = pd.concat([df_close, d['close']], axis=1) 
+#        df_vols = pd.concat([df_vols, d['vols']], axis=1)
        
-    data = {'close':df_close, 'vols':df_vols}
+#     data = {'close':df_close, 'vols':df_vols}
         
         
-elif ds == 2:
+# elif ds == 2:
     
-    lpc_datasets = lpc_datasets['set2']
+#     lpc_datasets = lpc_datasets['set2']
 
-    df_close = lpc_datasets[0]['close']
-    df_vols = lpc_datasets[0]['vols']
+#     df_close = lpc_datasets[0]['close']
+#     df_vols = lpc_datasets[0]['vols']
     
-    for d in lpc_datasets[1:]:
-       df_close = pd.concat([df_close, d['close']], axis=1) 
-       df_vols = pd.concat([df_vols, d['vols']], axis=1)
+#     for d in lpc_datasets[1:]:
+#        df_close = pd.concat([df_close, d['close']], axis=1) 
+#        df_vols = pd.concat([df_vols, d['vols']], axis=1)
 
-    data = {'close':df_close, 'vols':df_vols}
+#     data = {'close':df_close, 'vols':df_vols}
     
     
-elif ds == 3:
+# elif ds == 3:
     
-    data1 = lpc_datasets['set1']
+#     data1 = lpc_datasets['set1']
     
-    df_close_1 = data1[0]['close']
-    df_vols_1 = data1[0]['vols']
+#     df_close_1 = data1[0]['close']
+#     df_vols_1 = data1[0]['vols']
     
-    for d in data1[1:]:
-       df_close_1 = pd.concat([df_close_1, d['close']], axis=1) 
-       df_vols_1 = pd.concat([df_vols_1, d['vols']], axis=1)
+#     for d in data1[1:]:
+#        df_close_1 = pd.concat([df_close_1, d['close']], axis=1) 
+#        df_vols_1 = pd.concat([df_vols_1, d['vols']], axis=1)
     
-    data2 = lpc_datasets['set2']
+#     data2 = lpc_datasets['set2']
     
-    df_close_2 = data2[0]['close']
-    df_vols_2 = data2[0]['vols']
+#     df_close_2 = data2[0]['close']
+#     df_vols_2 = data2[0]['vols']
     
-    for d in data2[1:]:
-       df_close_2 = pd.concat([df_close_2, d['close']], axis=1) 
-       df_vols_2 = pd.concat([df_vols_2, d['vols']], axis=1)
+#     for d in data2[1:]:
+#        df_close_2 = pd.concat([df_close_2, d['close']], axis=1) 
+#        df_vols_2 = pd.concat([df_vols_2, d['vols']], axis=1)
     
-    df_close = pd.concat([df_close_1, df_close_2], axis=0)
-    df_vols = pd.concat([df_vols_1, df_vols_2], axis=0)
+#     df_close = pd.concat([df_close_1, df_close_2], axis=0)
+#     df_vols = pd.concat([df_vols_1, df_vols_2], axis=0)
     
-    data = {'close':df_close, 'vols':df_vols}
+#     data = {'close':df_close, 'vols':df_vols}
 
 
-mean_prices = df_close.mean(axis=0).to_frame()
-desv_prices = df_close.std(axis=0).to_frame()
+# mean_prices = df_close.mean(axis=0).to_frame()
+# desv_prices = df_close.std(axis=0).to_frame()
 
-mean_prices.columns = ['MEAN_PRICE']
-desv_prices.columns = ['PRICE_STD']
+# mean_prices.columns = ['MEAN_PRICE']
+# desv_prices.columns = ['PRICE_STD']
 
-mae = pd.concat([mae, mean_prices, desv_prices], axis=1)
-da = pd.concat([da, mean_prices, desv_prices], axis=1)
-dis = pd.concat([dis, mean_prices, desv_prices], axis=1)
+# mae = pd.concat([mae, mean_prices, desv_prices], axis=1)
+# da = pd.concat([da, mean_prices, desv_prices], axis=1)
+# dis = pd.concat([dis, mean_prices, desv_prices], axis=1)
 
 #%% EXPORT DETERMINANT DATA
 
-print('\nExporting data...')
+# print('\nExporting data...')
 
-det_dict = {'mae':mae, 'da':da, 'dis':dis}
+# det_dict = {'mae':mae, 'da':da, 'dis':dis}
 
-with open(outfolder + dpath + 'det_data_dict.lzma','wb') as file:
-    cpickle.dump(det_dict, file, compression='lzma')
+# with open(outfolder + dpath + 'det_data_dict.lzma','wb') as file:
+#     cpickle.dump(det_dict, file, compression='lzma')
 
-mae.to_excel(outfolder + dpath + 'mae/' + 'mae_data.xlsx')
-da.to_excel(outfolder + dpath + 'da/' + 'da_data.xlsx')
-dis.to_excel(outfolder + dpath + 'dis/' + 'dis_data.xlsx')
+# mae.to_excel(outfolder + dpath + 'mae/' + 'mae_data.xlsx')
+# da.to_excel(outfolder + dpath + 'da/' + 'da_data.xlsx')
+# dis.to_excel(outfolder + dpath + 'dis/' + 'dis_data.xlsx')
 
-print('     ...Done!')
+# print('     ...Done!')
