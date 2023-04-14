@@ -36,7 +36,6 @@ eikon.set_app_key(api_id)
 
 session = rdp.open_desktop_session(api_id)
 
-
 sdate = '2000-01-01'
 edate = datetime.datetime.now()
 edate = edate.date().isoformat()
@@ -594,4 +593,113 @@ with open(outfolder + 'volatility_dict.lzma','wb') as file:
 
 print('     ...done!')
     
+
+#%% HURST EXPONENT
+
+print('\nPreparing HURST data ...')
+
+set1_dates = ['','']
+set2_dates = ['','']
+set3_dates = ['','']
+
+
+def GET_HURST(serie, max_lag=21):
+        
+    lags = list(range(2, max_lag))
+    
+    tau = []
+    for l in lags:
+        _ = serie - serie.shift(l)
+        _.dropna(axis=0, inplace=True)
+        tau.append(_.std())
+        
+    tau = np.asarray(tau)
+    lags = np.asarray(lags)
+    
+    reg = np.polyfit(np.log(lags), np.log(tau), 1)
+
+    return reg[0]
+
+
+def GET_HURST_GRIDMEAN(time_serie):
+    
+    # 1TM, 2TM, 3TM, 5TM, 7TM, 9TM, 1TY, 1.2TY, 1.5TY, 1.7TY, 2TY 
+    grid = [21, 42, 63, 147, 189, 252, 315, 378, 441, 504]
+    
+    hs = []
+    for mlag in grid:
+        hs.append(GET_HURST(time_serie, max_lag = mlag))
+        
+    hs = pd.Series(hs)
+    hsm = hs.mean()
+    
+    return hsm
+
+
+def GET_HURST_CLASS(x):
+    
+    x2 = np.round(x, 1)
+    
+    if x2 == 0.5:
+        y = 'RANDWALK'
+        
+    elif x2 < 0.5:
+        y = 'MEANREV'
+        
+    elif x2 > 0.5:
+        y = 'TRENDING'
+        
+    else:
+        y = 'ERROR'
+    
+    return y 
+
+    
+hursts = {}
+    
+for tag in lpc:
+
+    print(tag, '...')
+    d = prices[tag]['CLOSE'].copy()
+    
+    # METRIC 1 - GRIDMEAN
+    hgm = GET_HURST_GRIDMEAN(d)
+        
+    # METRIC 2 - GRIDMEAN CLASS
+    hgmc = GET_HURST_CLASS(hgm)
+
+    # METRIC 3 - ROLLING MEAN
+    r = d.rolling(252).apply(GET_HURST)
+    r = r.to_frame()
+    r.index = d.index
+    r.columns = ['HURST']
+    r = pd.Series(r['HURST'])
+    r.dropna(inplace=True)
+
+    hrmean = r.mean()
+    hrlast = r[-1]
+
+    # METRIC 4 - ROLLING CLASS PROBA
+    r = r.to_frame()
+    r['CAT'] = r['HURST'].apply(GET_HURST_CLASS)
+
+    dum = pd.get_dummies(r['CAT'], prefix='HURST',dtype=int)
+
+    probas = {'rw':dum['HURST_RANDWALK'].mean(), 'mr':dum['HURST_MEANREV'].mean(), 'tr':dum['HURST_TRENDING'].mean()}
+
+    # METRIC 5 - ROLLING CLASS DAYS
+    days = {'rw':dum['HURST_RANDWALK'].sum(), 'mr':dum['HURST_MEANREV'].sum(), 'tr':dum['HURST_TRENDING'].sum()}
+
+    # METRIC 6 - DISTANCE FROM RANDOM WALK
+    r['DFRW'] = np.abs(r['HURST'] - 0.5)
+
+    dfrw = r['DFRW'].mean()
+
+    dicto = {'hgm':hgm, 'hgmc':hgmc, 'rdf':r, 'rmean':hrmean,'rlast':hrlast, 'pr':probas, 'dy':days, 'dfrw':dfrw}
+    
+    hursts[tag] = dicto
+
+hursts_sets = {}
+hursts_sets['set3'] = hursts
+
 
