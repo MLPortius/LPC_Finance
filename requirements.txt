@@ -11,3 +11,6 @@ scikit-learn
 lxml
 eikon==1.1.16
 ta==0.10.2
+refinitiv.dataplatform==1.0.0a21
+yfinance==0.2.14
+typing==3.7.4.3
