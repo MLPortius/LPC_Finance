@@ -62,15 +62,15 @@ dpath = dset+'/'
 
 #%% GITHUB SETUP
 
-print('\nGithub setup ...')
+# print('\nGithub setup ...')
 
-git_url = args.repo
+# git_url = args.repo
 
-# REPO AND USER
+# # REPO AND USER
 
-git_user = args.user
-git_email = args.email
-git_token = args.token
+# git_user = args.user
+# git_email = args.email
+# git_token = args.token
 
 # git_host = 'MLPortius'
 # project = git_url.split(git_host+'/')[1]
@@ -79,50 +79,50 @@ git_token = args.token
 
 # USER ACCESS
         
-print('     ...accesing to repo',git_url)
+# print('     ...accesing to repo',git_url)
 
-os.system("git"+" "+"config --global user.name"+" "+git_user)
-os.system("git"+" "+"config --global user.email"+" "+git_email)
-os.system("git"+" "+"config --global user.password"+" "+git_token)
+# os.system("git"+" "+"config --global user.name"+" "+git_user)
+# os.system("git"+" "+"config --global user.email"+" "+git_email)
+# os.system("git"+" "+"config --global user.password"+" "+git_token)
 
 # REPO SETUP
-if pf == 'spyder':
-    remotes = subprocess.check_output("git remote")
-    remotes = remotes.decode().split('\n')[:-1]
+# if pf == 'spyder':
+#     remotes = subprocess.check_output("git remote")
+#     remotes = remotes.decode().split('\n')[:-1]
 
-    if not "origin" in remotes:
-        print('     ...adding lpc remote to repo')
-        #os.system("git"+" "+"remote add lpc"+" "+git_remote)
-        os.system("git"+" "+"pull"+" "+"origin"+" "+"master")
+#     if not "origin" in remotes:
+#         print('     ...adding lpc remote to repo')
+#         #os.system("git"+" "+"remote add lpc"+" "+git_remote)
+#         os.system("git"+" "+"pull"+" "+"origin"+" "+"master")
         
-        branches = subprocess.check_output("git branch")
-        branches = branches.decode().split('\n')[:-1]
+#         branches = subprocess.check_output("git branch")
+#         branches = branches.decode().split('\n')[:-1]
         
-        branch = False
-        for b in branches: 
-            if git_branch in b:
-                branch = True
+#         branch = False
+#         for b in branches: 
+#             if git_branch in b:
+#                 branch = True
 
-        if not branch:
-            print('     ...adding the new branch to repo')
-            os.system("git"+" "+"branch"+" "+git_branch)
+#         if not branch:
+#             print('     ...adding the new branch to repo')
+#             os.system("git"+" "+"branch"+" "+git_branch)
 
-        os.system("git"+" "+"checkout"+" "+git_branch)
+#         os.system("git"+" "+"checkout"+" "+git_branch)
     
-        print('DONE!')
+#         print('DONE!')
         
-elif pf == 'colab':
+# elif pf == 'colab':
     
     # print('     ...adding lpc remote to repo')
     # os.system("git"+" "+"remote add lpc"+" "+git_remote)
     
-    print('     ...adding the new branch to repo')
-    os.system("git"+" "+"branch"+" "+git_branch)
+    # print('     ...adding the new branch to repo')
+    # os.system("git"+" "+"branch"+" "+git_branch)
     
-    print('     ...selecting new branch')
-    os.system("git"+" "+"checkout"+" "+git_branch)
+    # print('     ...selecting new branch')
+    # os.system("git"+" "+"checkout"+" "+git_branch)
     
-    print('DONE!')
+    # print('DONE!')
 
 
 #%% DATA FUNCTIONS 
@@ -320,11 +320,17 @@ for t in lpc:
     df.columns = ['PRICE_CUSUM_BREAKS','DA_NORM_PRICE_CUSUM_BREAKS','DIS_NORM_PRICE_CUSUM_BREAKS','MAE_NORM_PRICE_CUSUM_BREAKS']
     
     df.to_excel(outfolder + dpath + t + '.xlsx', index=False)
-
-    if git == 1:
+    
+    
+    if pf == 'colab':    
         
-        os.system('git add .')
-        os.system('git commit -m'+' '+'"cusum breaks - '+dset+' - '+t+'"')
-        os.system("git"+" "+"push -u origin"+" "+git_branch)
+        from google.colab import files
+        files.download(outfolder + dpath + t + '.xlsx') 
+        
+    # if git == 1:
+        
+    #     os.system('git add .')
+    #     os.system('git commit -m'+' '+'"cusum breaks - '+dset+' - '+t+'"')
+    #     os.system("git"+" "+"push -u origin"+" "+git_branch)
         
 print('     ...done!')
