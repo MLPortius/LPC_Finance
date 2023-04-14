@@ -81,9 +81,9 @@ git_token = args.token
         
 print('     ...accesing to repo',git_url)
 
-# os.system("git"+" "+"config --global user.name"+" "+git_user)
-# os.system("git"+" "+"config --global user.email"+" "+git_email)
-# os.system("git"+" "+"config --global user.password"+" "+git_token)
+os.system("git"+" "+"config --global user.name"+" "+git_user)
+os.system("git"+" "+"config --global user.email"+" "+git_email)
+os.system("git"+" "+"config --global user.password"+" "+git_token)
 
 # REPO SETUP
 if pf == 'spyder':
