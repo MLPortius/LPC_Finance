@@ -75,8 +75,7 @@ git_token = args.token
 git_host = 'MLPortius'
 project = git_url.split(git_host+'/')[1]
 
-git_remote = 'https://'+git_token+'@github.com/'+git_host+'/'+project
-
+git_remote = 'https://'+git_token+'@github.com/'+git_host+'/'+project+'.git'
 
 # USER ACCESS
         
