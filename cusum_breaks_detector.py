@@ -322,10 +322,10 @@ for t in lpc:
     df.to_excel(outfolder + dpath + t + '.xlsx', index=False)
     
     
-    if pf == 'colab':    
+    # if pf == 'colab':    
         
-        from google.colab import files
-        files.download(outfolder + dpath + t + '.xlsx') 
+    #     from google.colab import files
+    #     files.download(outfolder + dpath + t + '.xlsx') 
         
     # if git == 1:
         
