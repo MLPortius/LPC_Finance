@@ -72,28 +72,28 @@ git_user = args.user
 git_email = args.email
 git_token = args.token
 
-git_host = 'MLPortius'
-project = git_url.split(git_host+'/')[1]
+# git_host = 'MLPortius'
+# project = git_url.split(git_host+'/')[1]
 
-git_remote = 'https://'+git_token+'@github.com/'+git_host+'/'+project
+# git_remote = 'https://'+git_token+'@github.com/'+git_host+'/'+project
 
 # USER ACCESS
         
 print('     ...accesing to repo',git_url)
 
-os.system("git"+" "+"config --global user.name"+" "+git_user)
-os.system("git"+" "+"config --global user.email"+" "+git_email)
-os.system("git"+" "+"config --global user.password"+" "+git_token)
+# os.system("git"+" "+"config --global user.name"+" "+git_user)
+# os.system("git"+" "+"config --global user.email"+" "+git_email)
+# os.system("git"+" "+"config --global user.password"+" "+git_token)
 
 # REPO SETUP
 if pf == 'spyder':
     remotes = subprocess.check_output("git remote")
     remotes = remotes.decode().split('\n')[:-1]
 
-    if not "lpc" in remotes:
+    if not "origin" in remotes:
         print('     ...adding lpc remote to repo')
-        os.system("git"+" "+"remote add lpc"+" "+git_remote)
-        os.system("git"+" "+"pull"+" "+"lpc"+" "+"master")
+        #os.system("git"+" "+"remote add lpc"+" "+git_remote)
+        os.system("git"+" "+"pull"+" "+"origin"+" "+"master")
         
         branches = subprocess.check_output("git branch")
         branches = branches.decode().split('\n')[:-1]
@@ -113,8 +113,8 @@ if pf == 'spyder':
         
 elif pf == 'colab':
     
-    print('     ...adding lpc remote to repo')
-    os.system("git"+" "+"remote add lpc"+" "+git_remote)
+    # print('     ...adding lpc remote to repo')
+    # os.system("git"+" "+"remote add lpc"+" "+git_remote)
     
     print('     ...adding the new branch to repo')
     os.system("git"+" "+"branch"+" "+git_branch)
@@ -325,6 +325,6 @@ for t in lpc:
         
         os.system('git add .')
         os.system('git commit -m'+' '+'"cusum breaks - '+dset+' - '+t+'"')
-        os.system("git"+" "+"push -u lpc"+" "+git_branch)
+        os.system("git"+" "+"push -u origin"+" "+git_branch)
         
 print('     ...done!')
