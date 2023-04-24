@@ -7,6 +7,7 @@ Created on Thu Mar 23 20:49:55 2023
 
 #%% IMPORT LIBRARIES
 
+import os
 import time
 import eikon
 import datetime
@@ -594,112 +595,118 @@ with open(outfolder + 'volatility_dict.lzma','wb') as file:
 print('     ...done!')
     
 
+#%% CUSUM DATA
+
+print('\nPreparing RETRIEVING CUSUM data ...')
+
+
+print('\nset1 ...')
+files_set1 = os.listdir('input/cusum/set1')
+dicto_set1 = {}
+
+if '.gitkeep' in files_set1:
+    files_set1.pop(files_set1.index('.gitkeep'))
+
+for f in files_set1:
+    d = pd.read_excel('input/cusum/set1/'+f)
+    dicto_set1[f.split('.')[0]] = d
+    
+
+print('\nset2 ...')
+files_set2 = os.listdir('input/cusum/set2')
+dicto_set2 = {}
+
+if '.gitkeep' in files_set2:
+    files_set2.pop(files_set2.index('.gitkeep'))
+
+for f in files_set2:
+    d = pd.read_excel('input/cusum/set2/'+f)
+    dicto_set2[f.split('.')[0]] = d
+    
+    
+print('\nset3 ...')
+files_set3 = os.listdir('input/cusum/set3')
+dicto_set3 = {}
+
+if '.gitkeep' in files_set3:
+    files_set3.pop(files_set3.index('.gitkeep'))
+
+for f in files_set3:
+    d = pd.read_excel('input/cusum/set3/'+f)
+    dicto_set3[f.split('.')[0]] = d
+
+
+cusum = {'set1':dicto_set1, 'set2':dicto_set2, 'set3':dicto_set3}
+
+
+print('\n     ...done!')
+
+
+print('\nSaving CUSUM data ...')
+
+with open(outfolder + 'cusum_dict.lzma','wb') as file:
+    cpickle.dump(cusum, file, compression='lzma')
+
+print('     ...done!')
+    
+
 #%% HURST EXPONENT
 
 print('\nPreparing HURST data ...')
 
-set1_dates = ['','']
-set2_dates = ['','']
-set3_dates = ['','']
+print('\nset1 ...')
+files_set1 = os.listdir('input/hurst/set1')
+dicto_set1 = {}
 
+if '.gitkeep' in files_set1:
+    files_set1.pop(files_set1.index('.gitkeep'))
 
-def GET_HURST(serie, max_lag=21):
-        
-    lags = list(range(2, max_lag))
+for f in files_set1:
+    print(f,'...')
+    d1 = pd.read_excel('input/hurst/set1/'+f, sheet_name='METRICS')
+    d2 = pd.read_excel('input/hurst/set1/'+f, sheet_name='SERIES')
+    d3 = pd.read_excel('input/hurst/set1/'+f, sheet_name='DUMMIES')
+    dicto_set1[f.split('.')[0]] = {'m':d1, 's':d2, 'd':d3}
     
-    tau = []
-    for l in lags:
-        _ = serie - serie.shift(l)
-        _.dropna(axis=0, inplace=True)
-        tau.append(_.std())
-        
-    tau = np.asarray(tau)
-    lags = np.asarray(lags)
+
+print('\nset2 ...')
+files_set2 = os.listdir('input/hurst/set2')
+dicto_set2 = {}
+
+if '.gitkeep' in files_set2:
+    files_set2.pop(files_set2.index('.gitkeep'))
+
+for f in files_set2:
+    print(f,'...')
+    d1 = pd.read_excel('input/hurst/set2/'+f, sheet_name='METRICS')
+    d2 = pd.read_excel('input/hurst/set2/'+f, sheet_name='SERIES')
+    d3 = pd.read_excel('input/hurst/set2/'+f, sheet_name='DUMMIES')
+    dicto_set2[f.split('.')[0]] = {'m':d1, 's':d2, 'd':d3}
     
-    reg = np.polyfit(np.log(lags), np.log(tau), 1)
-
-    return reg[0]
-
-
-def GET_HURST_GRIDMEAN(time_serie):
     
-    # 1TM, 2TM, 3TM, 5TM, 7TM, 9TM, 1TY, 1.2TY, 1.5TY, 1.7TY, 2TY 
-    grid = [21, 42, 63, 147, 189, 252, 315, 378, 441, 504]
-    
-    hs = []
-    for mlag in grid:
-        hs.append(GET_HURST(time_serie, max_lag = mlag))
-        
-    hs = pd.Series(hs)
-    hsm = hs.mean()
-    
-    return hsm
+print('\nset3 ...')
+files_set3 = os.listdir('input/hurst/set3')
+dicto_set3 = {}
+
+if '.gitkeep' in files_set3:
+    files_set3.pop(files_set3.index('.gitkeep'))
+
+for f in files_set3:
+    print(f,'...')
+    d1 = pd.read_excel('input/hurst/set3/'+f, sheet_name='METRICS')
+    d2 = pd.read_excel('input/hurst/set3/'+f, sheet_name='SERIES')
+    d3 = pd.read_excel('input/hurst/set3/'+f, sheet_name='DUMMIES')
+    dicto_set3[f.split('.')[0]] = {'m':d1, 's':d2, 'd':d3}
 
 
-def GET_HURST_CLASS(x):
-    
-    x2 = np.round(x, 1)
-    
-    if x2 == 0.5:
-        y = 'RANDWALK'
-        
-    elif x2 < 0.5:
-        y = 'MEANREV'
-        
-    elif x2 > 0.5:
-        y = 'TRENDING'
-        
-    else:
-        y = 'ERROR'
-    
-    return y 
+hurst = {'set1':dicto_set1, 'set2':dicto_set2, 'set3':dicto_set3}
 
-    
-hursts = {}
-    
-for tag in lpc:
-
-    print(tag, '...')
-    d = prices[tag]['CLOSE'].copy()
-    
-    # METRIC 1 - GRIDMEAN
-    hgm = GET_HURST_GRIDMEAN(d)
-        
-    # METRIC 2 - GRIDMEAN CLASS
-    hgmc = GET_HURST_CLASS(hgm)
-
-    # METRIC 3 - ROLLING MEAN
-    r = d.rolling(252).apply(GET_HURST)
-    r = r.to_frame()
-    r.index = d.index
-    r.columns = ['HURST']
-    r = pd.Series(r['HURST'])
-    r.dropna(inplace=True)
-
-    hrmean = r.mean()
-    hrlast = r[-1]
-
-    # METRIC 4 - ROLLING CLASS PROBA
-    r = r.to_frame()
-    r['CAT'] = r['HURST'].apply(GET_HURST_CLASS)
-
-    dum = pd.get_dummies(r['CAT'], prefix='HURST',dtype=int)
-
-    probas = {'rw':dum['HURST_RANDWALK'].mean(), 'mr':dum['HURST_MEANREV'].mean(), 'tr':dum['HURST_TRENDING'].mean()}
-
-    # METRIC 5 - ROLLING CLASS DAYS
-    days = {'rw':dum['HURST_RANDWALK'].sum(), 'mr':dum['HURST_MEANREV'].sum(), 'tr':dum['HURST_TRENDING'].sum()}
-
-    # METRIC 6 - DISTANCE FROM RANDOM WALK
-    r['DFRW'] = np.abs(r['HURST'] - 0.5)
-
-    dfrw = r['DFRW'].mean()
-
-    dicto = {'hgm':hgm, 'hgmc':hgmc, 'rdf':r, 'rmean':hrmean,'rlast':hrlast, 'pr':probas, 'dy':days, 'dfrw':dfrw}
-    
-    hursts[tag] = dicto
-
-hursts_sets = {}
-hursts_sets['set3'] = hursts
+print('\n     ...done!')
 
 
+print('\nSaving HURST data ...')
+
+with open(outfolder + 'hurst_dict.lzma','wb') as file:
+    cpickle.dump(hurst, file, compression='lzma')
+
+print('     ...done!')

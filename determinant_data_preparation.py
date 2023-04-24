@@ -7,7 +7,6 @@ Created on Mon Mar 20 10:26:31 2023
 
 #%% IMPORT LIBRARIES
 
-import os
 import argparse
 import numpy as np
 import pandas as pd
@@ -16,22 +15,20 @@ import compress_pickle as cpickle
 
 #%% SCRIPT SETUP
 
-# parser = argparse.ArgumentParser(prog= 'LPC_Determinant_Analysis_Data_Preparation',
-#                                  description = 'Recopiles LPC data and creates dataframes',
-#                                  epilog = 'Created by Andriu')
+parser = argparse.ArgumentParser(prog= 'LPC_Determinant_Analysis_Data_Preparation',
+                                  description = 'Recopiles LPC data and creates dataframes',
+                                  epilog = 'Created by Andriu')
 
 
-# parser.add_argument('-d','--dset', required=True, type=int, choices=[1,2,3])
-# args = parser.parse_args()
+parser.add_argument('-d','--dset', required=True, type=int, choices=[1,2,3])
+args = parser.parse_args()
 
-# # ARGUMENTS
+# ARGUMENTS
 
-# ds = args.dset
+ds = args.dset
 
 
 #%% ENVIRONMENT SETUP
-
-ds = 1
 
 infolder = 'output/analysis/'
 infolder2 = 'input/eikon/'
@@ -44,15 +41,6 @@ dpath = dset+'/'
 
 
 #%% FUNCTION DEFINITION
-
-def ORDER_MDF(data, metric):
-
-    mdf = data[metric]
-    mdf.set_index('stock', drop=True, inplace=True)
-    mdf = mdf.loc[:,[metric,'w_size','p_lags','vcv']]
-    mdf.columns = [metric, 'WINDOW_SIZE', 'P_LAGS', 'VOLUME_COEF_VAR']
-    
-    return mdf
 
 def DIR(x):
     if x >= 0:
@@ -589,7 +577,7 @@ vs = pd.DataFrame(vs.values(), index=vs.keys())
 vs.columns = ['VOLUME_LAST', 'VOLUME_MEAN', 'VOLUME_CV', 
               'VOLUME_RMEAN', 'VOLUME_RET_CORR', 'VOLUME_RET_BETA']
 
-vs = vs.loc[:,['VOLUME_CV', 'VOLUME_RMEAN', 'VOLUME_RET_BETA']]
+vs = vs.loc[:,'VOLUME_CV']
 
 main = pd.concat([main, vs], axis=1)
 
@@ -689,7 +677,9 @@ for t in tickers:
 adxs = pd.DataFrame(adxs.values(), index = adxs.keys())
 adxs.columns = ['ADX30D_MEAN','ADX30D_TREND_DAYS', 'ADX30D_TREND_PROBA']
 
-main = pd.concat([main, adxs['ADX30D_TREND_DAYS']], axis=1)
+adxs = adxs.loc[:,['ADX30D_TREND_DAYS','ADX30D_TREND_PROBA']]
+
+main = pd.concat([main, adxs], axis=1)
 
 print('     ...done!')
 
@@ -703,8 +693,11 @@ print('\nPreparing VIX data...')
 data = cpickle.load(infolder2 + 'vix.lzma')
 vix = data['CLOSE'].to_frame()
 vix.columns = ['VIXi']
-
 vix.index = [x.date() for x in list(vix.index)]
+
+vix['VIX_Ri'] = (vix['VIXi'] - vix['VIXi'].shift(1))/vix['VIXi'].shift(1)
+vix.dropna(axis=0, inplace=True)
+vix['VIX_Ri'] = vix['VIX_Ri']*100
 
 close = GET_RETURNS_DICT(ds)
 
@@ -719,11 +712,11 @@ for t in tickers:
     r = r * 100
     
     d = pd.merge(r, vix, left_index=True, right_index=True, how='left')
-    d.columns = ['Ri', 'VIXi']    
+    d.columns = ['Ri', 'VIXi','VIXi_Ri']    
     
     cov = d.cov()
 
-    vbeta = cov.loc['Ri','VIXi']/cov.loc['VIXi','VIXi']
+    vbeta = cov.loc['Ri','VIXi_Ri']/cov.loc['VIXi_Ri','VIXi_Ri']
 
     vixs[t] = vbeta
     
@@ -746,6 +739,8 @@ close = GET_RETURNS_DICT(ds)
 
 adisp = {}
 
+t = 'A'
+
 for t in tickers:
     
     d = data[t]
@@ -762,18 +757,20 @@ for t in tickers:
  
         disp_mean = disp.mean()
         disp_last = disp[-1]
-
+        disp_rmean = disp.rolling(21).mean().mean()
+        
     else:
         
         disp_mean = np.nan
         disp_last = np.nan
-    
-    adisp[t] = [disp_mean, disp_last]
+        disp_rmean = np.nan
+        
+    adisp[t] = [disp_mean, disp_last, disp_rmean]
 
 adisp = pd.DataFrame(adisp.values(), index=adisp.keys())
-adisp.columns = ['ANALYST_DISPERSION_MEAN', 'ANALYST_DISPERSION_LAST']
+adisp.columns = ['ANALYST_DISPERSION_MEAN', 'ANALYST_DISPERSION_LAST', 'ANALYST_DISPERSION_RMEAN']
 
-main = pd.concat([main, adisp], axis=1)
+main = pd.concat([main, adisp['ANALYST_DISPERSION_RMEAN']], axis=1)
 
 print('     ...done!')
 
@@ -802,18 +799,20 @@ for t in tickers:
         
         an_mean = m.mean()
         an_last = m[-1]
+        an_rmean = m.rolling(21).mean().mean()
 
     else:
         
         an_mean = np.nan
         an_last = np.nan
+        an_rmean = np.nan
         
-    an[t] = [an_mean, an_last]
+    an[t] = [an_mean, an_last, an_rmean]
     
 an = pd.DataFrame(an.values(), index = an.keys())
-an.columns = ['ANALYST_NUMBER_MEAN','ANALYST_NUMBER_LAST']
+an.columns = ['ANALYST_NUMBER_MEAN','ANALYST_NUMBER_LAST', 'ANALYST_NUMBER_RMEAN']
 
-main = pd.concat([main, an], axis=1)
+main = pd.concat([main, an['ANALYST_NUMBER_RMEAN']], axis=1)
 
 print('     ...done!')
 
@@ -857,7 +856,7 @@ for t in tickers:
 pcrs = pd.DataFrame(pcrs.values(), index = pcrs.keys())
 pcrs.columns = ['PUTCALLRATIO_MEAN','PUTCALLRATIO_LAST','PUTCALLRATIO_RMEAN']
 
-main = pd.concat([main, pcrs], axis=1)
+main = pd.concat([main, pcrs['PUTCALLRATIO_RMEAN']], axis=1)
 
 print('     ...done!')
 
@@ -908,139 +907,87 @@ for t in tickers:
 bas = pd.DataFrame(bas.values(), index=bas.keys())
 bas.columns = ['BIDASK_MEAN','BIDASK_LAST','BIDASK_RMEAN']
 
-main = pd.concat([main, bas], axis=1) 
+main = pd.concat([main, bas['BIDASK_RMEAN']], axis=1) 
 
 print('     ...done!')
 
 del(data, close, bas, t, d, c, m, ba_mean, ba_last, ba_rmean)
 
 
-#%%
+#%% CUSUM
 
-#%% DATA LOAD
+print('\nPreparing CUSUM BREAKS data ...')
 
-# print('\nLoading data...')
+data = cpickle.load(infolder2 + 'cusum_dict.lzma')
+data = data[dset]
 
-# """ 
-  
-# METRIC = b0 + b1 * VOLUMEN + b2 * TENDENCIA + b3i * INDUSTRIAi + b4 * PRECIO 
-#             + b5 * STD PERIODO + b6 * VOLATILIDAD HISTORICA + b7 * DOLLAR VOLUME OF SY CP 
-#             + b8 * DOLLAR VOLUME OF SY LP + b9 * BID-ASK SY + b10 * N. ANALISTAS SY
-#             + b11 * DISPERSION ANALISTAS + b12 * C.O.R SY PRICE + b13 * SY MARKET CAP 
-#             + b14 * RF LP + b15 * RF CP + b16 * SHORT SALE RATIO YY + b17 * SHORT SALE RATIO MM 
-#             + b18 * P_LAGS + b19 * W_SIZE
-
-# """
-
-# mae = pd.read_excel(infolder + dpath + 'mae_opt.xlsx')
-# da = pd.read_excel(infolder + dpath + 'da_opt.xlsx')
-# dis = pd.read_excel(infolder + dpath + 'dis_opt.xlsx')
-
-# metric_dict = {'MAE':mae, 'DA':da, 'DIS':dis}
-
-# tickers = list(mae['stock'])
-
-
-# print('     ... grid info')
-
-# mae = ORDER_MDF(data=metric_dict, metric='MAE')
-# da = ORDER_MDF(data=metric_dict, metric='DA')
-# dis = ORDER_MDF(data=metric_dict, metric='DIS')
-
-
-# print('     ... histogram info')
-
-# histos = pd.read_excel(infolder + dpath + 'histos.xlsx')
-# cols = list(histos.columns)
-# cols[0] = 'stock'
-# cols[1] = 'STREAK_PROBA'
-# histos.columns = cols
-# histos.set_index('stock',drop=True, inplace=True)
-
-# mae = pd.concat([mae,histos['STREAK_PROBA']], axis=1)
-# da = pd.concat([da,histos['STREAK_PROBA']], axis=1)
-# dis = pd.concat([dis,histos['STREAK_PROBA']], axis=1)
-
-
-# print('     ... stock data')
-
-# lpc_datasets = cpickle.load('input/cpickle/lpc_datasets.lzma')
+for t in tickers:
+    d = data[t]
+    dls = list(d.iloc[0,:])
+    data[t] = dls
     
-# if ds == 1:
-    
-#     lpc_datasets = lpc_datasets['set1']
+df = pd.DataFrame(data.values(), index=data.keys())
+df.columns = d.columns
 
-#     df_close = lpc_datasets[0]['close']
-#     df_vols = lpc_datasets[0]['vols']
-    
-#     for d in lpc_datasets[1:]:
-#        df_close = pd.concat([df_close, d['close']], axis=1) 
-#        df_vols = pd.concat([df_vols, d['vols']], axis=1)
-       
-#     data = {'close':df_close, 'vols':df_vols}
-        
-        
-# elif ds == 2:
-    
-#     lpc_datasets = lpc_datasets['set2']
+main = pd.concat([main, df['PRICE_CUSUM_BREAKS']], axis=1)
 
-#     df_close = lpc_datasets[0]['close']
-#     df_vols = lpc_datasets[0]['vols']
-    
-#     for d in lpc_datasets[1:]:
-#        df_close = pd.concat([df_close, d['close']], axis=1) 
-#        df_vols = pd.concat([df_vols, d['vols']], axis=1)
+print('     ...done!')
 
-#     data = {'close':df_close, 'vols':df_vols}
-    
-    
-# elif ds == 3:
-    
-#     data1 = lpc_datasets['set1']
-    
-#     df_close_1 = data1[0]['close']
-#     df_vols_1 = data1[0]['vols']
-    
-#     for d in data1[1:]:
-#        df_close_1 = pd.concat([df_close_1, d['close']], axis=1) 
-#        df_vols_1 = pd.concat([df_vols_1, d['vols']], axis=1)
-    
-#     data2 = lpc_datasets['set2']
-    
-#     df_close_2 = data2[0]['close']
-#     df_vols_2 = data2[0]['vols']
-    
-#     for d in data2[1:]:
-#        df_close_2 = pd.concat([df_close_2, d['close']], axis=1) 
-#        df_vols_2 = pd.concat([df_vols_2, d['vols']], axis=1)
-    
-#     df_close = pd.concat([df_close_1, df_close_2], axis=0)
-#     df_vols = pd.concat([df_vols_1, df_vols_2], axis=0)
-    
-#     data = {'close':df_close, 'vols':df_vols}
+del(data, t, d, dls, df)
 
 
-# mean_prices = df_close.mean(axis=0).to_frame()
-# desv_prices = df_close.std(axis=0).to_frame()
+#%% HURST
 
-# mean_prices.columns = ['MEAN_PRICE']
-# desv_prices.columns = ['PRICE_STD']
+print('\nPreparing HURST EXPONENT data ...')
 
-# mae = pd.concat([mae, mean_prices, desv_prices], axis=1)
-# da = pd.concat([da, mean_prices, desv_prices], axis=1)
-# dis = pd.concat([dis, mean_prices, desv_prices], axis=1)
+data = cpickle.load(infolder2 + 'hurst_dict.lzma')
+data = data[dset]
+
+for t in tickers:
+    d = data[t]['m']
+    d.index = [t]
+    data[t] = d
+
+df = data[tickers[0]]
+for t in tickers[1:]:
+    df = pd.concat([df, data[t]], axis=0)
+    
+df.fillna(0, inplace=True)
+
+df2 = df.loc[:,['HURST_RANDWALK_DAYS','HURST_RANDWALK_PROBA','HURST_MEANREV_DAYS','HURST_MEANREV_PROBA','HURST_TRENDING_DAYS','HURST_TRENDING_PROBA']]
+
+main = pd.concat([main, df2], axis=1)
+
+print('     ...done!')
+
+del(data, t, d, df, df2)
+
+
+#%% INDUSTRY
+
+print('\nPreparing INDUSTRY data ...')
+
+data = cpickle.load(infolder2+'industry_dict.lzma')
+
+d = data['gics']['data']
+d = d.loc[:,'GICS Industry Group Name']
+
+dum = pd.get_dummies(d, prefix='INDUSTRY', dtype=int)
+
+main = pd.concat([main, dum], axis=1)
+
+print('     ...done!')
+
+del(data, d, dum)
+
 
 #%% EXPORT DETERMINANT DATA
 
-# print('\nExporting data...')
+print('\nExporting data...')
 
-# det_dict = {'mae':mae, 'da':da, 'dis':dis}
+with open(outfolder + dpath + 'det_main_data.lzma','wb') as file:
+    cpickle.dump(main, file, compression='lzma')
 
-# with open(outfolder + dpath + 'det_data_dict.lzma','wb') as file:
-#     cpickle.dump(det_dict, file, compression='lzma')
+main.to_excel(outfolder + dpath + 'det_main_data.xlsx')
 
-# mae.to_excel(outfolder + dpath + 'mae/' + 'mae_data.xlsx')
-# da.to_excel(outfolder + dpath + 'da/' + 'da_data.xlsx')
-# dis.to_excel(outfolder + dpath + 'dis/' + 'dis_data.xlsx')
-
-# print('     ...Done!')
+print('     ...Done!')
