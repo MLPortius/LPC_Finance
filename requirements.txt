@@ -15,3 +15,4 @@ refinitiv.dataplatform==1.0.0a21
 yfinance==0.2.14
 typing==3.7.4.3
 ipykernel
+jinja2==3.1.2
